@@ -12,6 +12,33 @@ var ee = require("@google/earthengine");
 // IDEA: button to export as csv file.
 // IDEA: Make datagrid similar to DataViewer.
 
+function getPersistentCredentials(){
+    // Credentials json file in ~/.config/earthengine/credentials
+    // These are created by earthengine authenticate. 
+    var os = require("os");
+    var path = require("path");
+    var fs = require("fs");
+
+    const homedir = os.homedir();
+    const credentialsFile = path.join(homedir, ".config", "earthengine", "credentials");
+    let credentials = JSON.parse(fs.readFileSync(credentialsFile, "utf8").toString());
+    return credentials;
+}
+function getEETokenFromPersistentCredentials(){
+    let credentials = getPersistentCredentials();
+    credentials.grant_type = "refresh_token";
+    let command = "curl --location --request POST ";
+    let oauthUrl = "https://oauth2.googleapis.com/token";
+    command+="\"" + oauthUrl + "\" ";
+    command+="--header \'Content-Type:application/json\' ";
+    command+="--data-raw \'" + JSON.stringify(credentials) + "\'";
+    let result = JSON.parse(
+        cp.spawnSync(command,{shell:true})
+        .stdout.toString()
+        ); 
+    return result.access_token;
+}
+
 function getEEToken(){
   const gcommand = "gcloud auth application-default print-access-token";
   return cp.spawnSync(gcommand,{shell:true})
@@ -26,7 +53,8 @@ function eeInit(token:any){
 // Set interval so that the token is refreshed every 3600 seconds. 
 function refreshEE(){
     console.log("Refreshing EE");
-    var token = getEEToken();
+    var token = getEETokenFromPersistentCredentials();
+    //var token = getEEToken();
     eeInit(token);
 }
 

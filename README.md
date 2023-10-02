@@ -12,15 +12,7 @@ A default maximum number of tasks to request is set to 100, which can be modifie
 
 ## Requirements
 
-`gcloud` should be installed and linked to an earth engine account/
-
-If you can get a token using:
-
-```bash
-gcloud auth application-default print-access-token
-```
-
-then you can use this extension. 
+This extension does not offer a method to authenticate earth engine. Instead, it relies on the user having the [earthengine](https://developers.google.com/earth-engine/guides/command_line) utility installed and [already authenticated](https://developers.google.com/earth-engine/guides/command_line#authenticate).  
 
 ## Extension Settings
 

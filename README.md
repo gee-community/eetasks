@@ -8,7 +8,7 @@ Use the "EE Tasks: open panel" to open a vscode panel. It will show a table of y
 
 A default maximum number of tasks to request is set to 100, which can be modified in the user options. 
 
-![eetasks-readme](eetasks-readme.gif)
+![eetasks-readme](https://raw.githubusercontent.com/lopezvoliver/eetasks/main/eetasks-readme.gif)
 
 ## Requirements
 

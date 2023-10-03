@@ -25,10 +25,10 @@
     "configuration":{
         "title": "EEtasks",
         "properties": {
-            "eetasks.maxTasks": {
-                "type": "integer",
-                "default": 100,
-                "description": "Maximum number of tasks to request from earthengine."
+            "eetasks.limit": {
+                "type": ["integer","null"],
+                "default": null,
+                "description": "Maximum number of tasks to return. Defaults to null (no limit)."
             }
         }
     }

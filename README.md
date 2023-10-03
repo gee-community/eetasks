@@ -19,7 +19,7 @@ This extension does not offer a method to authenticate earth engine. Instead, it
 
 This extension contributes the following settings:
 
-* `EEtasks.maxTasks`: Maximum number of tasks to request from earthengine.
+* `eetasks.limit`: Maximum number of tasks to request from earthengine. This value is set by default to null, which means that there is no limit to the number of tasks to retrieve. 
 
 ## Known Issues
 

@@ -8,17 +8,13 @@ var ee = require("@google/earthengine");
 // Based on:
 // https://github.com/microsoft/vscode-webview-ui-toolkit/blob/main/docs/getting-started.md
 
-// IDEA: also show as JSON viewer
-// IDEA: button to export as csv file.
-// IDEA: Make datagrid similar to DataViewer.
-
 function getPersistentCredentials(){
     // Credentials json file in ~/.config/earthengine/credentials
-    // These are created by earthengine authenticate. 
+    // These are managed by the earthengine cli:
+    // https://developers.google.com/earth-engine/guides/command_line
     var os = require("os");
     var path = require("path");
     var fs = require("fs");
-
     const homedir = os.homedir();
     const credentialsFile = path.join(homedir, ".config", "earthengine", "credentials");
     let credentials = JSON.parse(fs.readFileSync(credentialsFile, "utf8").toString());
@@ -50,11 +46,11 @@ function eeInit(token:any){
     ee.initialize();
 }
 
-// Set interval so that the token is refreshed every 3600 seconds. 
 function refreshEE(){
     console.log("Refreshing EE");
     var token = getEETokenFromPersistentCredentials();
     //var token = getEEToken();
+    // TODO: add configuration option to use gcloud OR persistent credentials. 
     eeInit(token);
 }
 
@@ -171,13 +167,12 @@ export class EETasksPanel {
         switch (command) {
           case "refresh":
             var conf = vscode.workspace.getConfiguration("EEtasks"); 
-            console.log("Refreshing tasks");
+            console.log("Retrieving tasks.");
             refreshEE(); 
-            this.eeRefresher = setInterval(refreshEE, 3600000);  // User tokens expire after 3600 seconds. 
-
-            var tasks = ee.data.listOperations(conf.maxTasks);
+            this.eeRefresher = setInterval(refreshEE, 3600000);  // Refresh user token every 3600 seconds. 
+            var tasks = ee.data.listOperations(conf.limit);
             var table = parseTasks(tasks);
-            console.log("Sending data to table.");
+            console.log("Sending tasks metadata to table.");
             webview.postMessage({command:"refreshTable", data:table});
 
            return;

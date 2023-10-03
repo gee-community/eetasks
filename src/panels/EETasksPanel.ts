@@ -46,11 +46,18 @@ function eeInit(token:any){
     ee.initialize();
 }
 
-function refreshEE(){
+function refreshEE(authMethod: string){
+    var token;
     console.log("Refreshing EE");
-    var token = getEETokenFromPersistentCredentials();
-    //var token = getEEToken();
-    // TODO: add configuration option to use gcloud OR persistent credentials. 
+
+    switch(authMethod.trim()){
+        case "earthengine-cli":
+            token = getEETokenFromPersistentCredentials();
+            break;
+        case "gcloud":
+            token = getEEToken();
+            break;
+    }
     eeInit(token);
 }
 
@@ -96,7 +103,7 @@ function parseTasks(tasks:any){
 
 export class EETasksPanel {
   public static currentPanel: EETasksPanel | undefined;
-  private eeRefresher: NodeJS.Timer | undefined; 
+  private eeRefresher: NodeJS.Timer | number | undefined; 
   private readonly _panel: vscode.WebviewPanel;
   private _disposables: vscode.Disposable[] = [];
 
@@ -166,10 +173,10 @@ export class EETasksPanel {
 
         switch (command) {
           case "refresh":
-            var conf = vscode.workspace.getConfiguration("EEtasks"); 
+            var conf = vscode.workspace.getConfiguration("eetasks"); 
             console.log("Retrieving tasks.");
-            refreshEE(); 
-            this.eeRefresher = setInterval(refreshEE, 3600000);  // Refresh user token every 3600 seconds. 
+            refreshEE(conf.authMethod);
+            this.eeRefresher = setInterval(refreshEE, 3600000, conf.authMethod);  // Refresh user token every 3600 seconds. 
             var tasks = ee.data.listOperations(conf.limit);
             var table = parseTasks(tasks);
             console.log("Sending tasks metadata to table.");

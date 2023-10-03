@@ -5,20 +5,13 @@ import { EETasksPanel } from "./panels/EETasksPanel";
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
-// 
 export function activate(context: vscode.ExtensionContext) {
   const openTasksTabCommand = vscode.commands.registerCommand("eetasks.open", () => {
     EETasksPanel.render(context.extensionUri);
-    // EETasksPanel.setEEToken();
   });
 
   context.subscriptions.push(openTasksTabCommand);
-
-  
-  // Export token??
-
 }
 
 // This method is called when your extension is deactivated
 export function deactivate() {}
-

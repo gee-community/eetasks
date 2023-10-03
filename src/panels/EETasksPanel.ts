@@ -100,6 +100,7 @@ function parseTasks(tasks:any){
 
 export class EETasksPanel {
   public static currentPanel: EETasksPanel | undefined;
+  private eeRefresher: NodeJS.Timer | undefined; 
   private readonly _panel: vscode.WebviewPanel;
   private _disposables: vscode.Disposable[] = [];
 
@@ -126,6 +127,7 @@ export class EETasksPanel {
   }
 
   public dispose() {
+    clearInterval(this.eeRefresher);
     EETasksPanel.currentPanel = undefined;
 
     this._panel.dispose();
@@ -168,14 +170,14 @@ export class EETasksPanel {
 
         switch (command) {
           case "refresh":
+            var conf = vscode.workspace.getConfiguration("EEtasks"); 
             console.log("Refreshing tasks");
             refreshEE(); 
-            setInterval(refreshEE, 3600000);  // User tokens expire after 3600 seconds. 
+            this.eeRefresher = setInterval(refreshEE, 3600000);  // User tokens expire after 3600 seconds. 
 
-            var conf = vscode.workspace.getConfiguration("EEtasks"); 
             var tasks = ee.data.listOperations(conf.maxTasks);
             var table = parseTasks(tasks);
-            console.log("Sending tasks");
+            console.log("Sending data to table.");
             webview.postMessage({command:"refreshTable", data:table});
 
            return;

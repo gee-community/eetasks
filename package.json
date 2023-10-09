@@ -19,26 +19,46 @@
     "commands": [
       {
         "command": "eetasks.open",
-        "title": "EE Tasks: view"
+        "title": "EE Tasks: view tasks"
+      },
+      {
+        "command": "eetasks.openDefault",
+        "title": "EE Tasks: view tasks (default account)"
+      },
+      {
+        "command": "eetasks.openViaPrivateKey",
+        "title": "EE Tasks: view tasks (service account)"
+      },
+      {
+        "command": "eetasks.updateGcloudAccountsList",
+        "title": "EE Tasks: update gcloud accounts list"
       }
     ],
-    "configuration":{
-        "title": "Earth Engine Task Manager",
-        "properties": {
-            "eetasks.limit": {
-                "type": ["integer","null"],
-                "default": null,
-                "description": "Maximum number of tasks to return. Defaults to null (no limit)."
-            },
-            "eetasks.authMethod":{
-                "type": ["string"],
-                "default": "earthengine-cli",
-                "enum": ["earthengine-cli", "gcloud"],
-                "enumDescriptions": ["Use stored credentials in ~/.config/earthengine/credentials",
-            "Use gcloud auth"],
-                "description": "Method to authenticate to Earth Engine."
-            }
+    "configuration": {
+      "title": "Earth Engine Task Manager",
+      "properties": {
+        "eetasks.limit": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "default": null,
+          "description": "Maximum number of tasks to return. Defaults to null (no limit).",
+          "order": 1
+        },
+        "eetasks.defaultProject": {
+          "type": "string",
+          "markdownDescription": "Default earthengine project to use. If left empty, the user will be prompted for it (except if `#eetasks.defaultAccount#` is \"earthengine\")",
+          "default": "",
+          "order": 2
+        },
+        "eetasks.defaultAccount": {
+          "type": "string",
+          "markdownDescription": "Default account to use. Set to `earthengine` to load the persistent credentials managed by the earthengine python client. Otherwise it must be an account authorized by gcloud (see [gcloud auth list](https://cloud.google.com/sdk/gcloud/reference/auth/list)), or \"application-default\". If left empty, the user will be prompted to choose an account.",
+          "default": "earthengine",
+          "order": 3
         }
+      }
     }
   },
   "scripts": {

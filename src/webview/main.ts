@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { provideVSCodeDesignSystem, vsCodeButton, vsCodeDataGrid, vsCodeDataGridCell, vsCodeDataGridRow, Button, DataGrid } from "@vscode/webview-ui-toolkit";
+import { provideVSCodeDesignSystem, vsCodeButton, vsCodeDataGrid, vsCodeDataGridCell, vsCodeDataGridRow, Button, DataGrid} from "@vscode/webview-ui-toolkit";
 
 provideVSCodeDesignSystem().register(vsCodeButton(), vsCodeDataGrid(), vsCodeDataGridCell(), vsCodeDataGridRow());
 
@@ -20,23 +20,25 @@ function messageFromExtension(event:any){
 
 function main() {
   const refreshButton = document.getElementById("refresh") as Button;
-  refreshButton?.addEventListener("click", handleRefreshClick);
-
-  // Check if we have an old state to restore from?
+ refreshButton?.addEventListener("click", handleRefreshClick);
+ 
+ // Check if we have an old state to restore from?
+  // State is directly the table data. 
   const previousState = vscode.getState();
-
-  // If we have a previous state, update the Table
-  // using it. Otherwise request it from the extension.
   let ok = previousState ? true: false;
-  
-  if(ok){
-    updateTable(previousState);
-  }else{
-    // Request refresh data. 
-    vscode.postMessage({command:"refresh"});
-  }
-}
+  if(ok){updateTable(previousState);}else{
 
+  const label = document.getElementById('status-label');
+  if(label){
+  label.textContent = "Retrieving tasks...";
+  }
+  // Send the command for initialization.
+  vscode.postMessage({
+      command:"init"
+  });
+  }
+
+}
 function handleRefreshClick() {
   vscode.postMessage({
     command: "refresh"
@@ -44,7 +46,18 @@ function handleRefreshClick() {
 }
 
 function updateTable(data:any){
+if (data.length<1){
+  const label = document.getElementById('status-label');
+  if(label){
+  label.textContent = "No tasks found.";
+  }
+
+}else{
 const grid = document.getElementById("basic-grid") as DataGrid; 
 grid.rowsData = data; 
+const label = document.getElementById('status-label');
+if(label){label.textContent = "";}
+}
+
 vscode.setState(data);
 }

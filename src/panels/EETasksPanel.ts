@@ -195,6 +195,9 @@ public init(){
     // (already checked expiry and sent message if BAD)
     if(token.length>1){
         let tokens = this._extensionState.get("tokens");
+        if(!tokens){
+            tokens = {} 
+        }
         tokens[this._account] = token;
         this._extensionState.update("tokens", tokens); 
     }

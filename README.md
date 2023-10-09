@@ -25,9 +25,9 @@ Multiple panels may be opened to view the tasks for different users.
 
 Use the `EE Tasks: view tasks` command to interactively select a user account. 
 
-The `earthengine` account refers to the credentials associated to the `eecli` or python library, i.e. these credentials are stored and managed by the `eecli`/python library. The EE tasks extensions will never modify these credentials. 
+The `earthengine` account refers to the credentials stored and managed by the earthengine Python API. The EE tasks extensions will never modify these credentials. 
 
-The other accounts shown (if any) are managed by the `gcloud cli`. You can use `gcloud auth login` to add an additional user, and `gcloud auth list` to display the accounts. The first time the EE tasks extension is activated, it will look for these accounts. If you have updated the credentialed accounts with `gcloud`, update them in the extension by using the `EE tasks: update gcloud accounts list`. 
+The other accounts shown (if any) are managed by the `gcloud cli` (as well as the earthengine cli through `gcloud`). You can use `gcloud auth login` to add an additional user, and `gcloud auth list` to display the accounts. The first time the EE tasks extension is activated, it will look for these accounts. If you have updated the credentialed accounts with `gcloud`, update them in the extension by using the `EE tasks: update gcloud accounts list`.
 
 When selecting an account other than `earthengine`, you will also be prompted to specify a project to use. 
 

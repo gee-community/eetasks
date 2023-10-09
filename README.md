@@ -55,6 +55,7 @@ This extension contributes the following settings:
 
 ## Known Issues
 
+- Currently only tested in linux ⚠️. 
 - The tasks tables do not refresh automatically. However, you can use the refresh button (🔄) to update the table on demand. 
 - The gcloud accounts lists is retrieved automatically only the first time the extension is activated. However, you can use the `EE tasks: update gcloud accounts list` to update it. 
 

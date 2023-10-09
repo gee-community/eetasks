@@ -160,7 +160,9 @@ public init(){
     // Returns a token (string) if it exists, otherwise returns "".
     let token = ""; 
     let tokens = this._extensionState.get("tokens"); 
-    if (this._account in tokens){token = tokens[this._account];}
+    if(tokens){
+        if (this._account in tokens){token = tokens[this._account];}
+    }
     return token;
   }
 
@@ -231,7 +233,7 @@ public init(){
      
       if (this._checkTokenExpiry(token)===-1){
           vscode.window.showErrorMessage("Error generating token using earthengine persistent credentials. " 
-          + command + " \n Try re-authenticating using `earthengine authenticate`, or try using the gcloud method."
+          + command + " \n Try re-authenticating using the python earthengine-api, or try using the gcloud method."
           + "\n Error message: \n" + result.stderr, {modal:true});
           return ""; // BAD token (length is 0).
       }else{

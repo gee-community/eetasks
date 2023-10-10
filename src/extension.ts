@@ -50,7 +50,16 @@ function _getGcloudAccounts(context: vscode.ExtensionContext){
   }
 
  function _which(cli:string){
-    let result = cp.spawnSync("which " + cli, {shell:true});
+    let command; 
+    if(os.platform()==="win32"){
+        command = "where " + cli;
+        // Assuming cmd.exe by default.. caveat:
+        // https://nodejs.org/api/child_process.html#default-windows-shell
+    }else{
+        command = "which " + cli;
+    }
+    let result = cp.spawnSync(command, {shell:true});
+    console.log("result: " + result);
     return !result.status;
  }
 

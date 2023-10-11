@@ -2,6 +2,7 @@
 import * as vscode from "vscode";
 import { getUri } from "../utilities/getUri";
 import { getNonce } from "../utilities/getNonce";
+import os = require("os");
 import * as cp from "child_process";
 var ee = require("@google/earthengine"); 
 
@@ -229,13 +230,23 @@ public init(){
       // Gets a token from peristent credentials (account is "earthengine")
       // If successful, return the token and assign it to 
       // the state. Otherwise returns an empty token.
+      let oauthUrl = "https://oauth2.googleapis.com/token";
       let credentials = this._getPersistentCredentials();
       credentials.grant_type = "refresh_token";
-      let command = "curl --location --request POST ";
-      let oauthUrl = "https://oauth2.googleapis.com/token";
+      let credentialsJSON = JSON.stringify(credentials);
+      let command; 
+
+     if(os.platform()==="win32"){
+        command = "curl.exe --location --request POST ";
+        command+="\"" + oauthUrl + "\" ";
+        command+="--header \"Content-Type:application/json\" ";
+        command+="--data-raw \"" + credentialsJSON.replace(/"/g,"\\\"") + "\"";
+     }else{
+      command = "curl --location --request POST ";
       command+="\"" + oauthUrl + "\" ";
       command+="--header \'Content-Type:application/json\' ";
-      command+="--data-raw \'" + JSON.stringify(credentials) + "\'";
+      command+="--data-raw \'" + credentialsJSON + "\'";
+     }
 
       let result = cp.spawnSync(command, {shell:true});
       let token = JSON.parse(result.stdout.toString()).access_token; 
@@ -243,7 +254,7 @@ public init(){
       if (this._checkTokenExpiry(token)===-1){
           vscode.window.showErrorMessage("Error generating token using earthengine persistent credentials. " 
           + command + " \n Try re-authenticating using the python earthengine-api, or try using the gcloud method."
-          + "\n Error message: \n" + result.stderr, {modal:true});
+          + "\n Error message: \n" + result.stdout.toString(), {modal:true});
           return ""; // BAD token (length is 0).
       }else{
           return token; // GOOD token. 

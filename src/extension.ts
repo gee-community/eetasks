@@ -211,7 +211,7 @@ export function activate(context: vscode.ExtensionContext) {
         // eetasks.updateGcloudAccountsList command. 
         let cachedGcloudAccounts = _lookForCachedGcloudAccounts(context); 
 
-        if(!isStringArray(cachedGcloudAccounts)){
+        if(cachedGcloudAccounts.length<1){
             gcloudAccounts = _getGcloudAccounts(context); 
         }else{
             gcloudAccounts = cachedGcloudAccounts; 

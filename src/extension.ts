@@ -112,7 +112,7 @@ export function activate(context: vscode.ExtensionContext) {
         if(fileUri){
           // Read the JSON file
           var fs = require("fs");
-          let credentials = JSON.parse(fs.readFileSync(fileUri[0].path, "utf8").toString());
+          let credentials = JSON.parse(fs.readFileSync(fileUri[0].fsPath, "utf8").toString());
           // Validation: should have at least:  
           if (credentials.hasOwnProperty("client_id") &&
               credentials.hasOwnProperty("project_id") &&

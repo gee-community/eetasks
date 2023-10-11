@@ -38,14 +38,19 @@ export class EETasksPanel {
 private _getTasks(){
     console.log("Retrieving tasks list");
     let limit = vscode.workspace.getConfiguration("eetasks").limit; 
-    let tasks = ee.data.listOperations(limit);
-    var table = this._parseTasks(tasks);
-    console.log("Sending tasks metadata to webview data-grid " + this._panel.title);
-    this._panel.webview.postMessage({command:"refreshTable", data:table});
-
-    if (table.length<1){
-    console.log("No tasks found.");
-    }              
+    // For windows, ee.data.listOperations only works with 
+    // a callback function -- why?
+    // in linux, it works either way. 
+    ee.data.listOperations(limit, (tasks:any)=>{
+        var table = this._parseTasks(tasks);
+        if(table.length<1){
+            vscode.window.showInformationMessage("No tasks found for "+this._account);
+        }else{
+        console.log("Sending tasks metadata to webview data-grid " + this._panel.title);
+        }
+        // Sending empty data is ok, as it will show "No tasks found." in the ui label. 
+        this._panel.webview.postMessage({command:"refreshTable", data:table});
+    }); 
   }
 
   private _asPrivateKey(){
@@ -58,6 +63,7 @@ private _getTasks(){
     // Will call this instad of the other methods. 
         // For service accounts we DON'T cache the credentials.
         // We are also using a different authentication method (not token). 
+        this._account="service-account";
         console.log("Processing with private key");
         ee.data.authenticateViaPrivateKey(this._privateKey,
             ()=>{

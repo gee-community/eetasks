@@ -203,7 +203,7 @@ public init(){
     if(token.length>1){
         let tokens = this._extensionState.get("tokens");
         if(!tokens){
-            tokens = {} 
+            tokens = {}; 
         }
         tokens[this._account] = token;
         this._extensionState.update("tokens", tokens); 

@@ -4,7 +4,7 @@
   "description": "Earth Engine Task Manager",
   "repository": {
     "type": "git",
-    "url": "https://github.com/lopezvoliver/eetasks.git"
+    "url": "https://github.com/gee-community/eetasks.git"
   },
   "version": "0.0.1",
   "engines": {

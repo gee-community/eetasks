@@ -339,8 +339,8 @@ public init(){
               Description: metadata.description,
               State: metadata.state,
               CreateTime: metadata.createTime,
-              EndTime: metadata.endTime,
-              BatchEECU: metadata.batchEecuUsageSeconds
+              EndTime: metadata.endTime || null,
+              BatchEECU: metadata.batchEecuUsageSeconds || null
           };
           data.push(row);
       });

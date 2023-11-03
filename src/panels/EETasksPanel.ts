@@ -86,6 +86,73 @@ private _getTasks(){
         return;
   }
 
+private _getTokenFromCredentials(credentials:any) {
+/*
+Sends a POST request to https://oauth2.googleapis.com/token
+with the given credentials
+Returns a Promise that resolves to the given Token:
+{"access_token", "expires_in", etc..}
+or rejects the promise with the error. 
+*/
+ const https = require('https');
+ const oauthHost="oauth2.googleapis.com";
+ let dataEncoded = JSON.stringify(credentials);
+  return new Promise((resolve, reject) => {
+    let req = https.request(
+      {
+        host: oauthHost,
+        path: "/token",
+        method: 'POST',
+        headers: {
+          'Content-Length': Buffer.byteLength(dataEncoded),
+          'Content-Type': 'application/json',
+        },
+      },
+      function(res:any) {
+        let buffers: any[] | Uint8Array[] = [];
+        res.on('error', reject);
+        res.on('data', (buffer: any) => buffers.push(buffer));
+        res.on(
+          'end',
+          () => 
+            res.statusCode === 200
+              ? resolve(Buffer.concat(buffers))
+              : reject(Buffer.concat(buffers))
+        );
+      }
+    );
+    req.write(dataEncoded);
+    req.end();
+  });
+}
+
+  private _readPersistentCredentials(){
+    /*
+    Reads the ~/.config/earthengine/credentials file*
+    asynchronously. Returns a Promise that resolves
+    to the JSON content of the file, or rejects
+    with the error. 
+    *This file is stored and managed by the python 
+    earthengine API. This extension will not modify it. 
+    */
+    const os = require("os");
+    const path = require("path");
+    const fs = require("fs");
+    const homedir = os.homedir();
+    const credentialsFile = path.join(homedir, 
+        ".config", "earthengine", "credentials"
+    );
+    return new Promise((resolve, reject) => {
+        fs.readFile(credentialsFile,"utf8", 
+        (err:any, data:any) => {
+          if (err) {reject(err);};
+          resolve(JSON.parse(
+            data.toString()
+          ));
+        });
+    });
+  }
+
   private _asAccount(){
     /*
     Entire process as account, re-using a previously cached token if available. 

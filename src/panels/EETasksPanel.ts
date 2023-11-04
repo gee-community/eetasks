@@ -116,12 +116,49 @@ or rejects the promise with the error.
           'end',
           () => 
             res.statusCode === 200
-              ? resolve(Buffer.concat(buffers))
+              ? resolve(JSON.parse(
+                Buffer.concat(buffers).toString()
+                ))
               : reject(Buffer.concat(buffers))
         );
       }
     );
     req.write(dataEncoded);
+    req.end();
+  });
+}
+private _validateToken(token:string){
+/*
+Sends a GET request to https://oauth2.googleapis.com
+to validate the token
+Returns a Promise that resolves to the JSON data with the result,
+(e.g. contains {"expires_in", "access_type", etc..})
+or rejects the promise with the error. 
+*/
+ const https = require('https');
+ const oauthHost="oauth2.googleapis.com";
+  return new Promise((resolve, reject) => {
+    let req = https.request(
+      {
+        host: oauthHost,
+        path: `/tokeninfo?access_token=${token}`,
+        method: 'GET',
+      },
+      function(res:any) {
+        let buffers: any[] | Uint8Array[] = [];
+        res.on('error', reject);
+        res.on('data', (buffer: any) => buffers.push(buffer));
+        res.on(
+          'end',
+          () => 
+            res.statusCode === 200
+              ? resolve(JSON.parse(
+                Buffer.concat(buffers).toString()
+                ))
+              : reject(Buffer.concat(buffers))
+        );
+      }
+    );
     req.end();
   });
 }

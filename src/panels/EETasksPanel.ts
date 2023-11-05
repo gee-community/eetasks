@@ -190,6 +190,26 @@ or rejects the promise with the error.
     });
   }
 
+  private _gcloud(){   
+    /*
+    Calls gcloud using child_process.exec
+    Returns a Promise that resolves
+    to the token (str), or rejects
+    with the error.    
+    */
+   const { exec } = require('child_process');
+   let gcommand = "gcloud auth print-access-token " + this._account;
+    if (this._account==="application-default"){
+       gcommand = "gcloud auth application-default print-access-token";
+   }
+   return new Promise((resolve, reject) => {
+    exec(gcommand, (err:any, stdout:any, stderr:any) => {
+      if (err) {console.log("ERROR!");reject(stderr);}
+      resolve(stdout.trim());
+    });
+    });
+  }
+
   private _asAccount(){
     /*
     Entire process as account, re-using a previously cached token if available. 

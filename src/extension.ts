@@ -59,7 +59,6 @@ function _getGcloudAccounts(context: vscode.ExtensionContext){
         command = "which " + cli;
     }
     let result = cp.spawnSync(command, {shell:true});
-    console.log("result: " + result);
     return !result.status;
  }
 
@@ -77,7 +76,7 @@ function _getGcloudAccounts(context: vscode.ExtensionContext){
 function promptProject(context: vscode.ExtensionContext, account:string){
     // If "earthengine", project is not required.
     if(account==="earthengine"){
-      EETasksPanel.render(context.extensionUri, context.globalState, account.trim(), "");           
+      EETasksPanel.render(context.extensionUri, context.globalState, account.trim(), null);           
     }else{
         vscode.window.showInputBox({
             title: "Select a project to use.", 

@@ -17,7 +17,7 @@ export function getAccountToken(account:string, extensionState:any){
                 .then((tok:any)=>{
                 saveToken(tok, account, extensionState);
                 resolve(tok);
-                });
+                }).catch((err:any)=>{reject("Error generating a new token. \n" + err);});
             }else{
             console.log("Reusing valid token for " + account); 
             resolve(tokenInfo.token);

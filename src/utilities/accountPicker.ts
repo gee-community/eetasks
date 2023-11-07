@@ -103,11 +103,13 @@ Picks an account and prompts for project*
 If there is only one account available, then there is no need to pick. 
 
 *project not needed if account picked is "earthengine"
+Project may also be provided, in which case only the account
+is picked.
 
 Finally, calls the callback function using the picked account, project
 and extra arguments
 */
-export async function pickAccount(context: vscode.ExtensionContext, callback:any, ...args: any[] | undefined[]){
+export async function pickAccount(project: string | null, context: vscode.ExtensionContext, callback:any, ...args: any[] | undefined[]){
     let accounts:any = context.globalState.get("userAccounts");
     if(!accounts){
         vscode.window.showInformationMessage("Looking for available accounts."); 
@@ -118,7 +120,7 @@ export async function pickAccount(context: vscode.ExtensionContext, callback:any
     let nAccounts = Object.entries(accounts).length;
     if(nAccounts===1){
         // Only one account, so there is no need to pick
-        promptProject(Object.keys(accounts)[0], callback, ...args);
+        promptProject(Object.keys(accounts)[0], callback, project, ...args);
         return;
     }
 
@@ -128,19 +130,24 @@ export async function pickAccount(context: vscode.ExtensionContext, callback:any
     )
     .then(function(account){
       if(account){
-        promptProject(account, callback, ...args);
+        promptProject(account, project, callback, ...args);
       }
     });
     return;
 }
 
-export function promptProject(account:string, callback: any, ...args:any[] | undefined[]){
+export function promptProject(account:string, project:string | null, callback: any, ...args:any[] | undefined[]){
     // If "earthengine", project is not required, so it is set to null
     if(account==="earthengine"){
       // No need to pick a project if using stored credentials
       callback(account, null, ...args);
       return;
     }else{
+        if(project){
+            callback(account, project.trim(), ...args);
+            return;
+        }else{
+
         vscode.window.showInputBox({
             title: "Select a project to use.", 
             prompt: "Example: earthengine-legacy"
@@ -150,5 +157,6 @@ export function promptProject(account:string, callback: any, ...args:any[] | und
               callback(account, project.trim(), ...args);
             }
         });
+        }
     }
 }

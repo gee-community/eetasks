@@ -76,7 +76,7 @@ export async function updateAccounts(context: vscode.ExtensionContext){
 
     if ((! canRunGcloud) && (! eeCredentials)){
         vscode.window.showErrorMessage("EE credentials not found, and gcloud is not available.");
-        return;
+        return undefined;
     }
 
     if(eeCredentials){
@@ -92,10 +92,9 @@ export async function updateAccounts(context: vscode.ExtensionContext){
             });
         }
     }
-    console.log(accounts);
     context.globalState.update("userAccounts", accounts);
     vscode.window.showInformationMessage("Updated user accounts."); 
-    return;
+    return accounts;
 }
 
 /*
@@ -108,10 +107,12 @@ If there is only one account available, then there is no need to pick.
 Finally, calls the callback function using the picked account, project
 and extra arguments
 */
-export function pickAccount(context: vscode.ExtensionContext, callback:any, ...args: any[] | undefined[]){
+export async function pickAccount(context: vscode.ExtensionContext, callback:any, ...args: any[] | undefined[]){
     let accounts:any = context.globalState.get("userAccounts");
     if(!accounts){
-        return;
+        vscode.window.showInformationMessage("Looking for available accounts."); 
+        accounts = await updateAccounts(context);
+        if(!accounts){return;}
     }
     
     let nAccounts = Object.entries(accounts).length;
@@ -138,7 +139,6 @@ export function promptProject(account:string, callback: any, ...args:any[] | und
     if(account==="earthengine"){
       // No need to pick a project if using stored credentials
       callback(account, null, ...args);
-      //EETasksPanel.render(context.extensionUri, context.globalState, account.trim(), null);           
       return;
     }else{
         vscode.window.showInputBox({
@@ -147,8 +147,7 @@ export function promptProject(account:string, callback: any, ...args:any[] | und
         })  
         .then(function(project){
             if(project){
-              callback(account, project, ...args);
-            //EETasksPanel.render(context.extensionUri, context.globalState, account.trim(), project.trim());
+              callback(account, project.trim(), ...args);
             }
         });
     }

@@ -3,6 +3,7 @@
 import * as vscode from 'vscode';
 import { EETasksPanel } from "./panels/EETasksPanel";
 import { updateAccounts, pickAccount, promptProject } from './utilities/accountPicker';
+import { scriptRunner } from './utilities/scriptRunners';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -61,11 +62,15 @@ export function activate(context: vscode.ExtensionContext) {
     pickAccount(null, context, EETasksPanel.render, context);
   });
 
+  const runScriptCommand = vscode.commands.registerCommand('eetasks.run', ()=>{
+    pickAccount(null, context, scriptRunner, context);
+  });
 
   context.subscriptions.push(openTasksTabCommand);
   context.subscriptions.push(openDefault);
   context.subscriptions.push(openTasksViaPrivateKey);
   context.subscriptions.push(updateAccountsCommand); 
+  context.subscriptions.push(runScriptCommand);
 }
 
 // This method is called when your extension is deactivated

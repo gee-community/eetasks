@@ -19,6 +19,10 @@
   "contributes": {
     "commands": [
       {
+        "command": "eetasks.run",
+        "title": "EE Tasks: run"
+      },
+      {
         "command": "eetasks.open",
         "title": "EE Tasks: view tasks"
       },

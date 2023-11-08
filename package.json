@@ -20,7 +20,11 @@
     "commands": [
       {
         "command": "eetasks.run",
-        "title": "EE Tasks: run"
+        "title": "EE Tasks: run GEE script"
+      },
+      {
+        "command": "eetasks.runAsServiceAccount",
+        "title": "EE Tasks: run GEE script (service account)"
       },
       {
         "command": "eetasks.open",

@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 import { EETasksPanel } from "./panels/EETasksPanel";
 import { updateAccounts, promptProject, 
     pickAccount, pickServiceAccount } from './utilities/accountPicker';
-import { scriptRunnerAsAccount } from './utilities/scriptRunners';
+import { scriptRunnerAsAccount,scriptRunnerAsServiceAccount } from './utilities/scriptRunners';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -51,11 +51,23 @@ export function activate(context: vscode.ExtensionContext) {
     pickAccount(null, context, scriptRunnerAsAccount, context);
   });
 
+  const runScriptAsServiceAccountCommand = vscode.commands.registerCommand(
+    'eetasks.runAsServiceAccount', async()=>{
+    pickServiceAccount()
+    .then((credentials:any|undefined)=>{
+        if(credentials){
+        scriptRunnerAsServiceAccount(credentials, context);
+        }
+    });
+  });
+
   context.subscriptions.push(openTasksTabCommand);
   context.subscriptions.push(openDefault);
   context.subscriptions.push(openTasksViaPrivateKey);
   context.subscriptions.push(updateAccountsCommand); 
   context.subscriptions.push(runScriptCommand);
+  context.subscriptions.push(runScriptAsServiceAccountCommand);
+
 }
 
 // This method is called when your extension is deactivated

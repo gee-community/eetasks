@@ -47,6 +47,7 @@ import { mkdtemp, rmdir } from 'node:fs/promises';
 import path = require("path");
 import os = require("os");
 import fs = require("fs");
+var ee = require("@google/earthengine"); 
 const scriptPrefix = "exports.main=function(ee,ceu, onTaskStart, onTaskStartError){" +
 "var print=ceu.print;var Map=ceu.Map; " +
 "Export = new ceu.Export(ee, onTaskStart, onTaskStartError); \n";
@@ -69,67 +70,85 @@ function eeInitError(err:any){
     vscode.window.showErrorMessage("EE initialization failed: \n " + err);
 }
 
-export function scriptRunner(account:string, project: string | null, context:vscode.ExtensionContext){
+function scriptRunner(project:string | null, document:vscode.TextDocument){
+  try{
+    ee.initialize(null, null, 
+    ()=>{
+        try{
+          if(project){
+            ee.data.setProject(project);
+          }
+          // Create a temporary directory:
+          mkdtemp(path.join(os.tmpdir(), 'eetasksRunner-'))
+          .then((tempDir:string)=>{
+              // Create the file to run in the temporary directory
+              let tempFile = path.join(tempDir, "temp.js"); 
+              //🔲 TODO: random name instead of temp.js
+              let tempUri = vscode.Uri.file(tempFile);
+              //🔲 TODO: replace with vscode.workspace.fs.writeFile
+              fs.writeFile(tempFile, 
+              scriptPrefix + document.getText() + "\n}", () => {
+                  try{
+                  const userCode = require(tempFile);
+                  try{
+                  userCode.main(ee, codeEditorUtils,
+                    onTaskStart, onTaskStartError);
+                  }catch(error){scriptRunError(error);}
+                  }catch(error){scriptRunError(error);}
+                  // Delete the temporary file and directory,
+                  // even if the script failed. 
+                  vscode.workspace.fs.delete(tempUri).then(
+                      ()=>rmdir(tempDir));
+                  }); // fs.writeFile
+                }); // mkdtemp
+        }catch (error){
+          scriptRunError(error);
+        }finally{
+          return;
+        }}, 
+        (error:any)=>{eeInitError(error);}, 
+        null, project);
+  }catch(error){
+    vscode.window.showErrorMessage("Error initializing earth engine token: \n" + error);
+  }
+}
+
+export function scriptRunnerAsAccount(account:string, project: string | null, context:vscode.ExtensionContext){
   /*
   Runs a GEE script using a user account/project
   */
   const editor = vscode.window.activeTextEditor;
   if (editor) {
-      var ee = require("@google/earthengine"); 
       let document = editor.document;
       const documentUri = document.uri;
       if (documentUri.scheme==='file'){
         getAccountToken(account, context.globalState)
         .then((token:any)=>{
           ee.data.setAuthToken('', 'Bearer', token, 3600, [], 
-            ()=>{
-            try{
-            ee.initialize(null, null, 
-            ()=>{
-                try{
-                  if(project){
-                    ee.data.setProject(project);
-                  }
-                  // Create a temporary directory:
-                  mkdtemp(path.join(os.tmpdir(), 'eetasksRunner-'))
-                  .then((tempDir:string)=>{
-                      // Create the file to run in the temporary directory
-                      let tempFile = path.join(tempDir, "temp.js"); 
-                      //🔲 TODO: random name instead of temp.js
-                      let tempUri = vscode.Uri.file(tempFile);
-                      //🔲 TODO: replace with vscode.workspace.fs.writeFile
-                      fs.writeFile(tempFile, 
-                      scriptPrefix + document.getText() + "\n}", () => {
-                          try{
-                          const userCode = require(tempFile);
-                          try{
-                          userCode.main(ee, codeEditorUtils,
-                            onTaskStart, onTaskStartError);
-                          }catch(error){scriptRunError(error);}
-                          }catch(error){scriptRunError(error);}
-                          // Delete the temporary file and directory,
-                          // even if the script failed. 
-                          vscode.workspace.fs.delete(tempUri).then(
-                              ()=>rmdir(tempDir));
-                          }); // fs.writeFile
-                        }); // mkdtemp
-                }catch (error){
-                  scriptRunError(error);
-                }finally{
-                  return;
-                }}, 
-                (error:any)=>{eeInitError(error);}, 
-                null, project); // ee.initialize
-          }
-          catch(error){
-            vscode.window.showErrorMessage("Error retrieving earth engine token: \n" + error);
-          }
-          }, false); // ee.setAuthToken
+            ()=>scriptRunner(project, document)
+          , false); 
         })
         .catch((err:any)=>{
             vscode.window.showErrorMessage(err);
             console.log(err);
         });
+      }
+  }
+}
+
+export function scriptRunnerAsServiceAccount(credentials:any, context:vscode.ExtensionContext){
+  /*
+  Runs a GEE script using credentials from a service account 
+  */
+  const editor = vscode.window.activeTextEditor;
+  if (editor) {
+      let document = editor.document;
+      const documentUri = document.uri;
+      if (documentUri.scheme==='file'){
+      ee.data.authenticateViaPrivateKey(credentials,
+          ()=>scriptRunner(credentials.project, document),
+          (error:any)=>{console.log("Error authenticating via private key. \n" + error);}
+          ); 
       }
   }
 }

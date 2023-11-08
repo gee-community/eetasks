@@ -74,6 +74,31 @@ class ExportImage {
     }
 }
 
+/* ExportMap: wrapper for ee.batchExport.map.toXXX 
+functions, but also starts the tasks automatically.
+🔲 TODO: defaults?
+*/
+class ExportMap {
+    constructor(ee, successCallback, errCallback){
+        this.toCloudStorage = function(...args){
+            return ee.batch.Export.map.toCloudStorage(...args)
+            .start(successCallback, errCallback);
+        };
+    }
+}
+
+/* ExportVideo: wrapper for ee.batchExport.video.toXXX 
+functions, but also starts the tasks automatically.
+🔲 TODO: defaults?
+*/
+class ExportVideo {
+    constructor(ee, successCallback, errCallback){
+        this.toCloudStorage = function(...args){
+            return ee.batch.Export.video.toCloudStorage(...args)
+            .start(successCallback, errCallback);
+        };
+    }
+}
 
 /* ExportTable: wrapper for ee.batchExport.table.toXXX 
 functions, but also starts the tasks automatically.
@@ -98,6 +123,16 @@ class ExportTable {
             return ee.batch.Export.table.toDrive(...args)
             .start(successCallback, errCallback);
         };
+        this.toBigQuery = function(...args){
+        //🔲 TODO: defaults?
+            return ee.batch.Export.table.toBigQuery(...args)
+            .start(successCallback, errCallback);
+        };
+        this.toFeatureView = function(...args){
+        //🔲 TODO: defaults?
+            return ee.batch.Export.table.toFeatureView(...args)
+            .start(successCallback, errCallback);
+        };
     }
 }
 
@@ -105,6 +140,8 @@ class ExportConstructor{
     constructor(ee, successCallback, errCallback){
         this.table = new ExportTable(ee, successCallback, errCallback);
         this.image = new ExportImage(ee, successCallback, errCallback);
+        this.map = new ExportMap(ee, successCallback, errCallback);
+        this.video = new ExportMap(ee, successCallback, errCallback);
     }
 }
 exports.Export = ExportConstructor;

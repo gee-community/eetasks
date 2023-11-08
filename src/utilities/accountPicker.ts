@@ -160,3 +160,35 @@ export function promptProject(account:string, project:string | null, callback: a
         }
     }
 }
+
+/*
+Prompts the user to pick a service account file (JSON)
+reads it, validates it, and finally resolves 
+to the credentials, or undefined.
+*/
+export async function pickServiceAccount(){
+ let credentials:any | undefined;
+ return new Promise((resolve)=>{
+  vscode.window.showOpenDialog({
+  filters:{"json": ['json', 'JSON']}
+  }).then(async (fileUri)=>{
+    if(fileUri){
+      try{
+        credentials = JSON.parse(
+             (await vscode.workspace.fs.readFile(fileUri[0])).toString());
+        if (credentials.hasOwnProperty("client_id") &&
+               credentials.hasOwnProperty("project_id") &&
+               credentials.hasOwnProperty("private_key")){
+               resolve(credentials);
+         }else{
+         vscode.window.showErrorMessage("The file selected is not a valid service account private key.");
+         resolve(undefined);
+         }
+      }catch(e){
+         vscode.window.showErrorMessage("Error reading file. \n" + e);
+         resolve(undefined);
+      }
+    }
+  });
+ });
+}   

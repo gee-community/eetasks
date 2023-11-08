@@ -9,9 +9,9 @@ Code editor utilities.
     are automatically started with a successCallback/errorCallback. 
     This is an added feature of the extension. 
     ⚠️ Another contrast is that the code Editor defines some default values
-    for parameters such as description, fileNamePrefix, assetId, etc. These 
-    are not implemented yet here (See 🔲 TODO's below), so submission of tasks
-    without these defaults will raise the errorCallback.  
+    for parameters such as description, fileNamePrefix, assetId, etc. Some of 
+    could be implemented here (See 🔲 TODO's below), but not all. Therefore
+    submission of tasks without these defaults will raise the errorCallback.  
     See:
     https://developers.google.com/earth-engine/apidocs/export-image-toasset
     https://developers.google.com/earth-engine/apidocs/export-image-tocloudstorage
@@ -61,6 +61,11 @@ class ExportImage {
             return ee.batch.Export.image.toAsset(...args)
             .start(successCallback, errCallback);
         };
+        this.toCloudStorage = function(...args){
+        //🔲 TODO: fileNamePrefix default to description
+            return ee.batch.Export.image.toCloudStorage(...args)
+            .start(successCallback, errCallback);
+        };
         this.toDrive = function(...args){
         //🔲 TODO: fileNamePrefix default to description
             return ee.batch.Export.image.toDrive(...args)
@@ -80,6 +85,12 @@ class ExportTable {
         //🔲 TODO: assetId default to
         // projects/PROJECT/assets/ + description
             return ee.batch.Export.table.toAsset(...args)
+            .start(successCallback, errCallback);
+        };
+        this.toCloudStorage = function(...args){
+        //🔲 TODO: fileNamePrefix default to description
+        //🔲 TODO: bucket default?
+            return ee.batch.Export.table.toCloudStorage(...args)
             .start(successCallback, errCallback);
         };
         this.toDrive = function(...args){

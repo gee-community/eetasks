@@ -27,8 +27,9 @@ Finally, the temporary file is deleted.
     are automatically started with a successCallback/errorCallback. 
     This is an added feature of the extension. 
     ⚠️ Another contrast is that the code Editor defines some default values
-    for parameters such as description, fileNamePrefix, assetId, etc. 
-    Tasks prepared here without these defaults will raise the errorCallback.  
+    for parameters such as description, fileNamePrefix, assetId, etc. Some of 
+    could be implemented here (See 🔲 TODO's below), but not all. Therefore
+    submission of tasks without these defaults will raise the errorCallback.  
 - Map, ui, and Chart: empty skeleton classes with functions accepting
 the same arguments as in the Code Editor, but doing nothing, i.e., 
 any user code calling thee functions is silently ignored. 

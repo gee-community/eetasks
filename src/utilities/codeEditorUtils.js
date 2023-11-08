@@ -49,6 +49,8 @@ functions, but also starts the tasks automatically.
 class ExportImage {
     constructor(ee, successCallback, errCallback){
         this.toDrive = function(...args){
+        //🔲 TODO: description default to myExportImageTask
+        //🔲 TODO: fileNamePrefix default to description
             return ee.batch.Export.image.toDrive(...args)
             .start(successCallback, errCallback);
         };
@@ -62,6 +64,8 @@ functions, but also starts the tasks automatically.
 class ExportTable {
     constructor(ee, successCallback, errCallback){
         this.toDrive = function(...args){
+        //🔲 TODO: description default to myExportTableTask
+        //🔲 TODO: fileNamePrefix default to description
             return ee.batch.Export.table.toDrive(...args)
             .start(successCallback, errCallback);
         };

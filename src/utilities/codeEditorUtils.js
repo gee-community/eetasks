@@ -6,7 +6,13 @@ Code editor utilities.
     named identically as in the code Editor, internally wrapping them from
     ee.batch.Export. 
     ⚠️ In contrast to the code Editor, tasks
-    are automatically started with a successCallback/errorCallback. See:
+    are automatically started with a successCallback/errorCallback. 
+    This is an added feature of the extension. 
+    ⚠️ Another contrast is that the code Editor defines some default values
+    for parameters such as description, fileNamePrefix, assetId, etc. These 
+    are not implemented yet here (See 🔲 TODO's below), so submission of tasks
+    without these defaults will raise the errorCallback.  
+    See:
     https://developers.google.com/earth-engine/apidocs/export-image-toasset
     https://developers.google.com/earth-engine/apidocs/export-image-tocloudstorage
     https://developers.google.com/earth-engine/apidocs/export-image-todrive
@@ -17,7 +23,7 @@ Code editor utilities.
     https://developers.google.com/earth-engine/apidocs/export-table-todrive
     https://developers.google.com/earth-engine/apidocs/export-table-tofeatureview
     https://developers.google.com/earth-engine/apidocs/export-video-tocloudstorage
-
+    
 - Map, ui, and Chart: empty skeleton classes with functions accepting
 the same arguments as in the Code Editor, but doing nothing, i.e., 
 any user code calling thee functions is silently ignored. 
@@ -45,11 +51,17 @@ exports.print = function(...args){
 
 /* ExportImage: wrapper for ee.batchExport.image.toXXX 
 functions, but also starts the tasks automatically.
+🔲 TODO: description default to myExportImageTask
 */
 class ExportImage {
     constructor(ee, successCallback, errCallback){
+        this.toAsset = function(...args){
+        //🔲 TODO: assetId default to
+        // projects/PROJECT/assets/ + description
+            return ee.batch.Export.image.toAsset(...args)
+            .start(successCallback, errCallback);
+        };
         this.toDrive = function(...args){
-        //🔲 TODO: description default to myExportImageTask
         //🔲 TODO: fileNamePrefix default to description
             return ee.batch.Export.image.toDrive(...args)
             .start(successCallback, errCallback);
@@ -60,11 +72,17 @@ class ExportImage {
 
 /* ExportTable: wrapper for ee.batchExport.table.toXXX 
 functions, but also starts the tasks automatically.
+🔲 TODO: description default to myExportTableTask
 */
 class ExportTable {
     constructor(ee, successCallback, errCallback){
+        this.toAsset = function(...args){
+        //🔲 TODO: assetId default to
+        // projects/PROJECT/assets/ + description
+            return ee.batch.Export.table.toAsset(...args)
+            .start(successCallback, errCallback);
+        };
         this.toDrive = function(...args){
-        //🔲 TODO: description default to myExportTableTask
         //🔲 TODO: fileNamePrefix default to description
             return ee.batch.Export.table.toDrive(...args)
             .start(successCallback, errCallback);

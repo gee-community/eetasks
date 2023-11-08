@@ -24,7 +24,11 @@ Finally, the temporary file is deleted.
     named identically as in the code Editor, internally wrapping them from
     ee.batch.Export. 
     ⚠️ In contrast to the code Editor, tasks
-    are automatically started with a successCallback/errorCallback.
+    are automatically started with a successCallback/errorCallback. 
+    This is an added feature of the extension. 
+    ⚠️ Another contrast is that the code Editor defines some default values
+    for parameters such as description, fileNamePrefix, assetId, etc. 
+    Tasks prepared here without these defaults will raise the errorCallback.  
 - Map, ui, and Chart: empty skeleton classes with functions accepting
 the same arguments as in the Code Editor, but doing nothing, i.e., 
 any user code calling thee functions is silently ignored. 

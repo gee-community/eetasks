@@ -43,6 +43,19 @@ exports.print = function(...args){
     });
 };
 
+/* ExportImage: wrapper for ee.batchExport.image.toXXX 
+functions, but also starts the tasks automatically.
+*/
+class ExportImage {
+    constructor(ee, successCallback, errCallback){
+        this.toDrive = function(...args){
+            return ee.batch.Export.image.toDrive(...args)
+            .start(successCallback, errCallback);
+        };
+    }
+}
+
+
 /* ExportTable: wrapper for ee.batchExport.table.toXXX 
 functions, but also starts the tasks automatically.
 */
@@ -58,6 +71,7 @@ class ExportTable {
 class ExportConstructor{
     constructor(ee, successCallback, errCallback){
         this.table = new ExportTable(ee, successCallback, errCallback);
+        this.image = new ExportImage(ee, successCallback, errCallback);
     }
 }
 exports.Export = ExportConstructor;

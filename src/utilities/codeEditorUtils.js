@@ -1,9 +1,26 @@
 /*
-Code editor aliases.
-print and Export* mirror the functionality in the code editor;
-Map, Chart, and ui are ignored (empty skeleton classes)
+Code editor utilities.
+- print: mirrors the functionality of print in the Code Editor. See:
+    https://developers.google.com/earth-engine/apidocs/print
+- Export: mirrors the structure of Export in the Code Editor, with functions
+    named identically as in the code Editor, internally wrapping them from
+    ee.batch.Export. 
+    ⚠️ In contrast to the code Editor, tasks
+    are automatically started with a successCallback/errorCallback. See:
+    https://developers.google.com/earth-engine/apidocs/export-image-toasset
+    https://developers.google.com/earth-engine/apidocs/export-image-tocloudstorage
+    https://developers.google.com/earth-engine/apidocs/export-image-todrive
+    https://developers.google.com/earth-engine/apidocs/export-map-tocloudstorage
+    https://developers.google.com/earth-engine/apidocs/export-table-toasset
+    https://developers.google.com/earth-engine/apidocs/export-table-tobigquery
+    https://developers.google.com/earth-engine/apidocs/export-table-tocloudstorage
+    https://developers.google.com/earth-engine/apidocs/export-table-todrive
+    https://developers.google.com/earth-engine/apidocs/export-table-tofeatureview
+    https://developers.google.com/earth-engine/apidocs/export-video-tocloudstorage
 
-*with the big caveat that tasks will be automatically submitted.
+- Map, ui, and Chart: empty skeleton classes with functions accepting
+the same arguments as in the Code Editor, but doing nothing, i.e., 
+any user code calling thee functions is silently ignored. 
 */
 
 /*
@@ -26,31 +43,25 @@ exports.print = function(...args){
     });
 };
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
-exports.ExportMod = function(Export, errCallback){
-    /*
-    TODO: modify the Export class
-    so that tasks are automatically started.
-    This is a different behavior than the codeEditor,
-    where tasks are added to a queue and the user
-    needs to manually click each one.
-    This would be difficult to mirror here, and 
-    it would be actually more convenient for 
-    a user to start them automatically. 
-    This will need to be specified in the documentation.
-    */
-    //TODO: modify the Export class
-    // so that it starts the tasks 
-    // automatically
-    // For success callback, use a dummy function
-    // for error callback, alert the user.
-    //Export.table.toDriveOriginal = Export.table.toDrive; 
-    //Export.table.toDrive = function(...args){
-    //    return Export.table.toDriveOriginal(...args)
-    //    .start(()=>{}, errCallback);
-    //};
-    return Export;
-};
+/* ExportTable: wrapper for ee.batchExport.table.toXXX 
+functions, but also starts the tasks automatically.
+*/
+class ExportTable {
+    constructor(ee, successCallback, errCallback){
+        this.toDrive = function(...args){
+            return ee.batch.Export.table.toDrive(...args)
+            .start(successCallback, errCallback);
+        };
+    }
+}
+
+class ExportConstructor{
+    constructor(ee, successCallback, errCallback){
+        this.table = new ExportTable(ee, successCallback, errCallback);
+    }
+}
+exports.Export = ExportConstructor;
+   
 
 /*
 The rest are defined to be ignored:

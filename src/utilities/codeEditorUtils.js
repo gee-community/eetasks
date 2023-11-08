@@ -141,7 +141,7 @@ class ExportConstructor{
         this.table = new ExportTable(ee, successCallback, errCallback);
         this.image = new ExportImage(ee, successCallback, errCallback);
         this.map = new ExportMap(ee, successCallback, errCallback);
-        this.video = new ExportMap(ee, successCallback, errCallback);
+        this.video = new ExportVideo(ee, successCallback, errCallback);
     }
 }
 exports.Export = ExportConstructor;

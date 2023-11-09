@@ -29,24 +29,35 @@ the same arguments as in the Code Editor, but doing nothing, i.e.,
 any user code calling thee functions is silently ignored. 
 */
 
+
+exports.Log = function(log){
+    return function(line){
+    log.appendLine(line);
+    };
+};
+
 /*
-Prints one or more arguments to the console
-using getInfo if allowed.  
+Wraps a function to print one or more arguments
+to a given log (vscode.window.OutputChannel)
+If an argument is an object with the getInfo method,
+then getInfo() is called asynchronously. 
 */
-exports.print = function(...args){
-    args.forEach((object)=>{
-    if(object){
-      if (typeof object === "object"){
-          if ("getInfo" in object){
-          console.log(object.getInfo());
-          }else{
-          console.log(object);
-          }
-      }else{
-          console.log(object);
+exports.Print = function(log){
+    return function(...args){
+      args.forEach((object)=>{
+      if(object){
+        if (typeof object === "object"){
+            if ("getInfo" in object){
+                object.getInfo(log);
+            }else{
+            log(object.toString());
+            }
+        }else{
+            log(object.toString());
+        }
       }
-    }
-    });
+      });
+    };
 };
 
 /* ExportImage: wrapper for ee.batchExport.image.toXXX 

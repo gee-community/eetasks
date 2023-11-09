@@ -48,9 +48,11 @@ import path = require("path");
 import os = require("os");
 import fs = require("fs");
 var ee = require("@google/earthengine"); 
-const scriptPrefix = "exports.main=function(ee,ceu, onTaskStart, onTaskStartError){" +
-"var print=ceu.print;var Map=ceu.Map; " +
-"Export = new ceu.Export(ee, onTaskStart, onTaskStartError); \n";
+const scriptPrefix = "exports.main=function(ee,ceu, onTaskStart, onTaskStartError, vslog){" +
+"var log=ceu.Log(vslog);" +
+"var print=ceu.Print(log);var Map=ceu.Map; " +
+"Export = new ceu.Export(ee, onTaskStart, onTaskStartError);";
+const scriptSuffix = "\n}";
 
 var codeEditorUtils = require("./codeEditorUtils.js");
 
@@ -70,7 +72,7 @@ function eeInitError(err:any){
     vscode.window.showErrorMessage("EE initialization failed: \n " + err);
 }
 
-function scriptRunner(project:string | null, document:vscode.TextDocument){
+function scriptRunner(project:string | null, document:vscode.TextDocument, log:vscode.OutputChannel){
   try{
     ee.initialize(null, null, 
     ()=>{
@@ -87,12 +89,16 @@ function scriptRunner(project:string | null, document:vscode.TextDocument){
               let tempUri = vscode.Uri.file(tempFile);
               //🔲 TODO: replace with vscode.workspace.fs.writeFile
               fs.writeFile(tempFile, 
-              scriptPrefix + document.getText() + "\n}", () => {
+              scriptPrefix + document.getText() + scriptSuffix, () => {
                   try{
                   const userCode = require(tempFile);
                   try{
+                  log.appendLine("Starting GEE script run: ");
+                  log.appendLine(document.fileName);
+                  log.appendLine("----------------------------------");
                   userCode.main(ee, codeEditorUtils,
-                    onTaskStart, onTaskStartError);
+                    onTaskStart, onTaskStartError, log);
+                  log.show();
                   }catch(error){scriptRunError(error);}
                   }catch(error){scriptRunError(error);}
                   // Delete the temporary file and directory,
@@ -113,7 +119,8 @@ function scriptRunner(project:string | null, document:vscode.TextDocument){
   }
 }
 
-export function scriptRunnerAsAccount(account:string, project: string | null, context:vscode.ExtensionContext){
+export function scriptRunnerAsAccount(account:string, project: string | null, 
+    context:vscode.ExtensionContext, log:vscode.OutputChannel){
   /*
   Runs a GEE script using a user account/project
   */
@@ -125,7 +132,7 @@ export function scriptRunnerAsAccount(account:string, project: string | null, co
         getAccountToken(account, context.globalState)
         .then((token:any)=>{
           ee.data.setAuthToken('', 'Bearer', token, 3600, [], 
-            ()=>scriptRunner(project, document)
+            ()=>scriptRunner(project, document, log)
           , false); 
         })
         .catch((err:any)=>{
@@ -136,7 +143,7 @@ export function scriptRunnerAsAccount(account:string, project: string | null, co
   }
 }
 
-export function scriptRunnerAsServiceAccount(credentials:any, context:vscode.ExtensionContext){
+export function scriptRunnerAsServiceAccount(credentials:any, log:vscode.OutputChannel){
   /*
   Runs a GEE script using credentials from a service account 
   */
@@ -146,7 +153,7 @@ export function scriptRunnerAsServiceAccount(credentials:any, context:vscode.Ext
       const documentUri = document.uri;
       if (documentUri.scheme==='file'){
       ee.data.authenticateViaPrivateKey(credentials,
-          ()=>scriptRunner(credentials.project, document),
+          ()=>scriptRunner(credentials.project, document, log),
           (error:any)=>{console.log("Error authenticating via private key. \n" + error);}
           ); 
       }

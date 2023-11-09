@@ -9,3 +9,10 @@
         | --- | --- | --- | --- | --- | --- | --- |  
 
     - Provides "EE Tasks: update gcloud accounts list". Only required after using `gcloud` to authenticate additional users. This is done automatically the first time the extension is activated (if `gcloud` is available). 
+
+## v0.1.0
+
+- Major internal changes to improve performance
+- New feature: run a GEE script from vscode! see documentation [here](https://github.com/gee-community/eetasks/blob/main/docs/runGEEscripts.md)
+- Fixed a [bug](https://github.com/gee-community/eetasks/issues/1) that prevented the EndTime and BatchEECU columns to display. 
+- Renamed the `EE Tasks: update gcloud accounts list` command to `EE Tasks: update available accounts`. This reflects an implementation change that simplifies and groups all accounts (gcloud and "earthengine").  

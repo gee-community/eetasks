@@ -56,12 +56,18 @@ const scriptSuffix = "\n}";
 
 var codeEditorUtils = require("./codeEditorUtils.js");
 
-function onTaskStart(){
-    vscode.window.showInformationMessage("Successfully submitted task");
+function wrapOnTaskStart(log: vscode.OutputChannel){
+  return function onTaskStart(){
+        log.appendLine("Successfully submitted task");
+        vscode.window.showInformationMessage("Successfully submitted task");
+    };
 }
 
-function onTaskStartError(err:any){
-    vscode.window.showErrorMessage("Failed to start EE task: \n " + err);
+function wrapOnTaskStartError(log: vscode.OutputChannel){
+  return function onTaskStartError(err:any){
+       log.appendLine("Failed to start EE task: \n " + err);
+       vscode.window.showErrorMessage("Failed to start EE task: \n " + err);
+   };
 }
 
 function scriptRunError(err:any){
@@ -73,6 +79,8 @@ function eeInitError(err:any){
 }
 
 function scriptRunner(project:string | null, document:vscode.TextDocument, log:vscode.OutputChannel){
+  let onTaskStart = wrapOnTaskStart(log);
+  let onTaskStartError = wrapOnTaskStartError(log);
   try{
     ee.initialize(null, null, 
     ()=>{

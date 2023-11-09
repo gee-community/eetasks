@@ -31,8 +31,16 @@ any user code calling thee functions is silently ignored.
 
 
 exports.Log = function(log){
-    return function(line){
-    log.appendLine(line);
+    return function(...args){
+      args.forEach((line)=>{
+      if(line){
+        if(typeof line==="object"){
+            log.appendLine(JSON.stringify(line));
+        }else{
+            log.appendLine(line.toString());
+        }
+      }
+    });
     };
 };
 
@@ -50,10 +58,10 @@ exports.Print = function(log){
             if ("getInfo" in object){
                 object.getInfo(log);
             }else{
-            log(object.toString());
+            log(object);
             }
         }else{
-            log(object.toString());
+            log(object);
         }
       }
       });

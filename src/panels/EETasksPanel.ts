@@ -165,8 +165,11 @@ export class EETasksPanel {
   https://github.com/microsoft/vscode-webview-ui-toolkit/blob/main/docs/getting-started.md
   */
 
-  public static render(extensionUri: vscode.Uri, extensionState: any, account: string, project: string | null,
+  public static render(account: string, project: string | null,
+    context: vscode.ExtensionContext,
     privateKey?: any) {
+    let extensionUri = context.extensionUri;
+    let extensionState = context.globalState;
     
     let panelName = "EE Tasks: " + account;
     if(project){

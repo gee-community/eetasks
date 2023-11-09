@@ -1,3 +1,4 @@
+import { getEECredentials } from './accountPicker';
 import https = require('https');
 /*
 Handles retrieving a token for an account, either
@@ -11,13 +12,13 @@ export function getAccountToken(account:string, extensionState:any){
    return new Promise((resolve, reject) => {
         validateToken(checkStateForExistingToken(account, extensionState))
         .then((tokenInfo:any)=>{
-            if("error" in tokenInfo){
+            if((! tokenInfo)){
                 console.log("Generating a new token for " + account);
                 newToken(account)
                 .then((tok:any)=>{
                 saveToken(tok, account, extensionState);
                 resolve(tok);
-                });
+                }).catch((err:any)=>{reject("Error generating a new token. \n" + err);});
             }else{
             console.log("Reusing valid token for " + account); 
             resolve(tokenInfo.token);
@@ -30,13 +31,17 @@ export function getAccountToken(account:string, extensionState:any){
 
 /*
 Looks for an account token in the extension state
-Returns an empty string "" if not found. 
+Returns null if not found. 
+account must already exist in userAccounts
+userAccounts is a dictionary with accountName:token pairs
 */
 function checkStateForExistingToken(account:string, extensionState:any){
-    let token = ""; 
-    let tokens = extensionState.get("tokens"); 
-    if(tokens){
-        if (account in tokens){token = tokens[account];}
+    let token = null;
+    let accounts = extensionState.get("userAccounts"); 
+    if(accounts){
+        if (account in accounts){
+            token = accounts[account];
+        }
     }
     return token;
 }
@@ -47,13 +52,12 @@ Sends a GET request to https://oauth2.googleapis.com
 to validate the token
 Returns a Promise that resolves to:
 {"expires_in", "access_type", "token", ...} for a valid token, 
-{"error":"invalid_token", "error_description":..., "token": ...} for an invalid token,
-or rejects the Promise with an error. 
+or null if the token is invalid or there is an error
 */
-function validateToken(token:string){
+function validateToken(token:string|null){
  const oauthHost="oauth2.googleapis.com";
-  return new Promise((resolve, reject) => {
-    if (token.length===0){reject;}
+  return new Promise((resolve) => {
+    if (! token){resolve(null);}
     let req = https.request(
       {
         host: oauthHost,
@@ -62,14 +66,23 @@ function validateToken(token:string){
       },
       function(res:any) {
         let buffers: any[] | Uint8Array[] = [];
-        res.on('error', reject);
+        res.on('error', (e:any)=>
+            {
+            console.log(e);
+            resolve(null);
+            }
+            );
         res.on('data', (buffer: any) => buffers.push(buffer));
         res.on(
           'end',
           () =>{ 
             let out = JSON.parse(Buffer.concat(buffers).toString());
             out.token = token;
+            if ("error" in out){
+                resolve(null);
+            }else{
             resolve(out);
+            }
           }
         );
       }
@@ -94,13 +107,14 @@ function newToken(account:string){
 /*
 Reads persistent credentials and gets a new token
 using the credentials.
-Returns a Promise with the token (string) or
-rejects with the error.
+Returns a Promise that resolves to the token *string) 
+or rejects with the error.
 */
 function getTokenFromPersistentCredentials(){
     return new Promise((resolve, reject)=>{
-    readPersistentCredentials()
+    getEECredentials()
     .then((credentials:any)=>{
+        if(!credentials){reject("EE credentials not found.");}
         getTokenFromCredentials(credentials)
         .then((tokenInfo:any)=>{
             resolve(tokenInfo.access_token);
@@ -109,35 +123,6 @@ function getTokenFromPersistentCredentials(){
     }).catch((err:any)=>reject(err));
     });
 }
-
-
-/*
-Reads the ~/.config/earthengine/credentials file*
-asynchronously. Returns a Promise that resolves
-to the JSON content of the file, or rejects
-with the error. 
-*This file is stored and managed by the python 
-earthengine API. This extension will not modify it. 
-*/
-function readPersistentCredentials(){
-    const os = require("os");
-    const path = require("path");
-    const fs = require("fs");
-    const homedir = os.homedir();
-    const credentialsFile = path.join(homedir, 
-        ".config", "earthengine", "credentials"
-    );
-    return new Promise((resolve, reject) => {
-        fs.readFile(credentialsFile,"utf8", 
-        (err:any, data:any) => {
-          if (err) {reject(err);};
-          let credentials=JSON.parse(data.toString());
-          credentials.grant_type="refresh_token";
-          resolve(credentials);
-        });
-    });
-}
-
 
 /*
 Sends a POST request to https://oauth2.googleapis.com/token
@@ -186,6 +171,7 @@ Calls gcloud using child_process.exec
 Returns a Promise that resolves
 to the token (str), or rejects
 with the error.    
+🔲 TODO: use a vscode function instead of exec.
 */
 function gcloud(account:string){   
    const { exec } = require('child_process');
@@ -206,10 +192,13 @@ function gcloud(account:string){
 Handles saving an account token to the extention state.
 */
 function saveToken(token:string, account:string, extensionState:any){
-
-    let tokens = extensionState.get("tokens");
-    if(!tokens){tokens = {}; }
-    tokens[account] = token;
-    extensionState.update("tokens", tokens); 
+    let accounts = extensionState.get("userAccounts"); 
+    if(accounts){
+        if (account in accounts){
+            accounts[account] = token;
+            extensionState.update("userAccounts", accounts);
+        }
+    }
+    return;
 }
 

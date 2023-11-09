@@ -39,8 +39,8 @@
         "title": "EE Tasks: view tasks (service account)"
       },
       {
-        "command": "eetasks.updateGcloudAccountsList",
-        "title": "EE Tasks: update gcloud accounts list"
+        "command": "eetasks.updateUserAccounts",
+        "title": "EE Tasks: update available accounts"
       }
     ],
     "configuration": {

@@ -9,7 +9,7 @@ import { scriptRunnerAsAccount,scriptRunnerAsServiceAccount } from './utilities/
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-  const updateAccountsCommand = vscode.commands.registerCommand("eetasks.updateGcloudAccountsList",()=>{
+  const updateAccountsCommand = vscode.commands.registerCommand("eetasks.updateUserAccounts",()=>{
         vscode.window.showInformationMessage("Looking for available accounts."); 
         updateAccounts(context);
     }); 

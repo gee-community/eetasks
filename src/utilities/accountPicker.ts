@@ -7,8 +7,11 @@ import path = require("path");
 import { exec } from 'child_process';
 
 /*
-Returns the credentials if they exist,
+Returns the ~/.config/earthengine/credentials file*
+and returns the credenitials if they exist,
 otherwise returns undefined. 
+*This file is stored and managed by the python 
+earthengine API. This extension will not modify it. 
 */
 export async function getEECredentials(){
  let homedir = os.homedir();

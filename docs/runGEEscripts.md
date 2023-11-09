@@ -39,7 +39,7 @@ Why would I want to run a GEE script in vscode? Short answer: [just because I ca
 
 > ❗ Use of `EE Tasks: run GEE script` is experimental and recommended for experienced GEE developers only. Not following [GEE coding best practices](https://developers.google.com/earth-engine/guides/best_practices) might lead to the extension crashing (e.g. the equivalent of [browser lock](https://developers.google.com/earth-engine/guides/debugging#browser-lock)). However, it's not the end of world, as a simple "Reload window" should get the extension running back to normal. 
 
-However, simple client-side errors will be catched:
+However, simple client-side errors will be caught:
 
 ![hellogee-log](https://raw.githubusercontent.com/gee-community/eetasks/main/docs/assets/helloGEE-syntaxError.png)
 
@@ -109,4 +109,4 @@ See more details in the [question](https://stackoverflow.com/questions/77436205/
 
 What happens when I use `getInfo` (or other method that accepts a callback function) synchronously through a GEE script in `EE Tasks: run GEE script` in windows? 
 
-Nothing really.. the error is not catched properly (there will be no message showing that the script run failed), but any other call to a `EE Tasks` extension will not work. A simple `Developer: Reload Window` will get the extension working back to normal. 
+Nothing really.. the error is not caught properly (there will be no message showing that the script run failed), but any other call to a `EE Tasks` extension will not work. A simple `Developer: Reload Window` will get the extension working back to normal. 

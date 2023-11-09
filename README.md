@@ -73,5 +73,5 @@ This extension contributes the following settings:
 ## Known Issues
 
 - The tasks tables do not refresh automatically. However, you can use the refresh button (🔄) to update the table on demand. 
-- The intended use for the `EE Tasks: run GEE script` is lmited and currently experimental (recommended for experienced users only). [Learn more about it here](https://github.com/gee-community/eetasks/blob/main/docs/runGEEscripts.md).
+- The intended use for the `EE Tasks: run GEE script` is limited and currently experimental (recommended for experienced users only). [Learn more about it here](https://github.com/gee-community/eetasks/blob/main/docs/runGEEscripts.md).
     - An unknown cause for an issue prevents the use of synchronous calls to some `ee` functions in Windows. Learn more about it [here](https://github.com/gee-community/eetasks/blob/main/docs/runGEEscripts.md#caveat-for-windows-users)

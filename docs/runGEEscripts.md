@@ -71,7 +71,7 @@ For example:
 
 ![ExportTableSuccessFail](https://raw.githubusercontent.com/gee-community/eetasks/main/docs/assets/ExportTableSuccessAndFail.png)
 
-> ⚠️ Another contrast to the Code Editor can be seen in the example above. Some parameters such as `description`, `fileNamePrefix`, `assetId`, etc. are either given default values (e.g. "myExportTableTask") in the Code Editor, or are prompted from the user after clicking "Run". Here, the task fails to start if they are not provided explicitly.  
+> ⚠️ Another contrast to the Code Editor can be seen in the example above. In the Code Editor, some parameters such as `assetId`, `bucket`, etc. are prompted from the user after clicking "Run". Here, the task fails to start if they are not provided explicitly.  
 
 We can then use the `EE Tasks: view` command to monitor the task:
 

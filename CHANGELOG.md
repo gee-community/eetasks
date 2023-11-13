@@ -16,3 +16,7 @@
 - New feature: run a GEE script from vscode! see documentation [here](https://github.com/gee-community/eetasks/blob/main/docs/runGEEscripts.md)
 - Fixed a [bug](https://github.com/gee-community/eetasks/issues/1) that prevented the EndTime and BatchEECU columns to display. 
 - Renamed the `EE Tasks: update gcloud accounts list` command to `EE Tasks: update available accounts`. This reflects an implementation change that simplifies and groups all accounts (gcloud and "earthengine").  
+
+## v0.1.1
+
+- Bug fix [issue #3](https://github.com/gee-community/eetasks/issues/3) 

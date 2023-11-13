@@ -70,25 +70,82 @@ exports.Print = function(log){
 
 /* ExportImage: wrapper for ee.batchExport.image.toXXX 
 functions, but also starts the tasks automatically.
-🔲 TODO: description default to myExportImageTask
 */
 class ExportImage {
     constructor(ee, successCallback, errCallback){
         this.toAsset = function(...args){
-        //🔲 TODO: assetId default to
-        // projects/PROJECT/assets/ + description
-            return ee.batch.Export.image.toAsset(...args)
-            .start(successCallback, errCallback);
+          var clientConfig = ee.arguments.extractFromFunction(
+              ee.batch.Export.image.toAsset, arguments);
+          if(!Object.hasOwn(clientConfig,"description")){
+              clientConfig["description"] = "myEETasksExportImageTask";
+          }
+          //🔲 TODO: assetId default to
+          // projects/PROJECT/assets/ + description
+          if (Object.hasOwn(clientConfig, "region")){
+            var region = clientConfig["region"];
+            if (! typeof region==='string'){
+              region.evaluate(
+                  (r)=>{
+              clientConfig["region"] = r;
+              return ee.batch.Export.image.toAsset(clientConfig)
+              .start(successCallback, errCallback);
+                  }
+              );
+            }
+          }
+          return ee.batch.Export.image.toAsset(...args)
+          .start(successCallback, errCallback);
         };
+
         this.toCloudStorage = function(...args){
-        //🔲 TODO: fileNamePrefix default to description
-            return ee.batch.Export.image.toCloudStorage(...args)
-            .start(successCallback, errCallback);
+          var clientConfig = ee.arguments.extractFromFunction(
+              ee.batch.Export.image.toCloudStorage, arguments);
+          if(!Object.hasOwn(clientConfig,"description")){
+              clientConfig["description"] = "myEETasksExportImageTask";
+          }
+          if(!Object.hasOwn(clientConfig,"fileNamePrefix")){
+              clientConfig["fileNamePrefix"] = clientConfig["description"];
+          }
+          if (Object.hasOwn(clientConfig, "region")){
+            var region = clientConfig["region"];
+            if (! typeof region==='string'){
+              region.evaluate(
+                  (r)=>{
+              clientConfig["region"] = r;
+              return ee.batch.Export.image.toCloudStorage(clientConfig)
+              .start(successCallback, errCallback);
+                  }
+              );
+            }
+          }
+          return ee.batch.Export.image.toCloudStorage(clientConfig)
+          .start(successCallback, errCallback);
+          
         };
+
         this.toDrive = function(...args){
-        //🔲 TODO: fileNamePrefix default to description
-            return ee.batch.Export.image.toDrive(...args)
-            .start(successCallback, errCallback);
+          var clientConfig = ee.arguments.extractFromFunction(
+              ee.batch.Export.image.toDrive, arguments);
+          if(!Object.hasOwn(clientConfig,"description")){
+              clientConfig["description"] = "myEETasksExportImageTask";
+          }
+          if(!Object.hasOwn(clientConfig,"fileNamePrefix")){
+              clientConfig["fileNamePrefix"] = clientConfig["description"];
+          }
+          if (Object.hasOwn(clientConfig, "region")){
+            var region = clientConfig["region"];
+            if (! typeof region==='string'){
+              region.evaluate(
+                  (r)=>{
+              clientConfig["region"] = r;
+              return ee.batch.Export.image.toDrive(clientConfig)
+              .start(successCallback, errCallback);
+                  }
+              );
+            }
+          }
+          return ee.batch.Export.image.toDrive(clientConfig)
+          .start(successCallback, errCallback);
         };
     }
 }

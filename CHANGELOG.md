@@ -20,3 +20,9 @@
 ## v0.1.1
 
 - Bug fix [issue #3](https://github.com/gee-community/eetasks/issues/3) 
+
+## v0.1.2
+
+- Bug fix [issue #5](https://github.com/gee-community/eetasks/issues/5) 
+- Internal improvements to `Export.image.to*`
+- Completed the skeleton for `ui` and `Chart` so they can be silently ignored in `EE Tasks: run GEE scripts`.

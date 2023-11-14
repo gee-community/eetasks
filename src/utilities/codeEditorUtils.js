@@ -74,6 +74,7 @@ functions, but also starts the tasks automatically.
 class ExportImage {
     constructor(ee, successCallback, errCallback){
         this.toAsset = function(...args){
+          var computed = false;
           var clientConfig = ee.arguments.extractFromFunction(
               ee.batch.Export.image.toAsset, arguments);
           if(!Object.hasOwn(clientConfig,"description")){
@@ -83,7 +84,8 @@ class ExportImage {
           // projects/PROJECT/assets/ + description
           if (Object.hasOwn(clientConfig, "region")){
             var region = clientConfig["region"];
-            if (! typeof region==='string'){
+            if (region.func){
+              computed = true;
               region.evaluate(
                   (r)=>{
               clientConfig["region"] = r;
@@ -92,12 +94,15 @@ class ExportImage {
                   }
               );
             }
+            if (!computed){
+            return ee.batch.Export.image.toAsset(clientConfig)
+            .start(successCallback, errCallback);
+            }
           }
-          return ee.batch.Export.image.toAsset(...args)
-          .start(successCallback, errCallback);
         };
 
         this.toCloudStorage = function(...args){
+          var computed = false;
           var clientConfig = ee.arguments.extractFromFunction(
               ee.batch.Export.image.toCloudStorage, arguments);
           if(!Object.hasOwn(clientConfig,"description")){
@@ -108,7 +113,8 @@ class ExportImage {
           }
           if (Object.hasOwn(clientConfig, "region")){
             var region = clientConfig["region"];
-            if (! typeof region==='string'){
+            if (region.func){
+              computed=true;
               region.evaluate(
                   (r)=>{
               clientConfig["region"] = r;
@@ -118,12 +124,14 @@ class ExportImage {
               );
             }
           }
+          if (!computed){
           return ee.batch.Export.image.toCloudStorage(clientConfig)
           .start(successCallback, errCallback);
-          
+          }
         };
 
         this.toDrive = function(...args){
+          var computed = false;
           var clientConfig = ee.arguments.extractFromFunction(
               ee.batch.Export.image.toDrive, arguments);
           if(!Object.hasOwn(clientConfig,"description")){
@@ -134,7 +142,8 @@ class ExportImage {
           }
           if (Object.hasOwn(clientConfig, "region")){
             var region = clientConfig["region"];
-            if (! typeof region==='string'){
+            if (region.func){
+              computed=true;
               region.evaluate(
                   (r)=>{
               clientConfig["region"] = r;
@@ -144,8 +153,10 @@ class ExportImage {
               );
             }
           }
+          if (!computed){
           return ee.batch.Export.image.toDrive(clientConfig)
           .start(successCallback, errCallback);
+          }
         };
     }
 }

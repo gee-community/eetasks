@@ -50,7 +50,10 @@ import fs = require("fs");
 var ee = require("@google/earthengine"); 
 const scriptPrefix = "exports.main=function(ee,ceu, onTaskStart, onTaskStartError, vslog){" +
 "var log=ceu.Log(vslog);" +
-"var print=ceu.Print(log);var Map=ceu.Map; " +
+"var print=ceu.Print(log);"+
+"var Map=ceu.Map; " +
+"var Chart=ceu.Chart;" + 
+"var ui = ceu.ui;" +
 "Export = new ceu.Export(ee, onTaskStart, onTaskStartError);";
 const scriptSuffix = "\n}";
 

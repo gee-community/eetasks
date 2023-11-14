@@ -77,7 +77,7 @@
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js",
-    "package": "NODE_ENV=production node ./esbuild.js"
+    "package": "set NODE_ENV=production node ./esbuild.js"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.1",

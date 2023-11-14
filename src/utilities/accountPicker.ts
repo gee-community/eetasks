@@ -112,7 +112,7 @@ is picked.
 Finally, calls the callback function using the picked account, project
 and extra arguments
 */
-export async function pickAccount(project: string | null, context: vscode.ExtensionContext, callback:any, ...args: any[] | undefined[]){
+export async function pickAccount(project: string | null, context: vscode.ExtensionContext, callback:Function, ...args: any[] | undefined[]){
     let accounts:any = context.globalState.get("userAccounts");
     if(!accounts){
         vscode.window.showInformationMessage("Looking for available accounts."); 
@@ -123,7 +123,7 @@ export async function pickAccount(project: string | null, context: vscode.Extens
     let nAccounts = Object.entries(accounts).length;
     if(nAccounts===1){
         // Only one account, so there is no need to pick
-        promptProject(Object.keys(accounts)[0], callback, project, ...args);
+        promptProject(Object.keys(accounts)[0], project, callback, ...args);
         return;
     }
 
@@ -139,7 +139,7 @@ export async function pickAccount(project: string | null, context: vscode.Extens
     return;
 }
 
-export function promptProject(account:string, project:string | null, callback: any, ...args:any[] | undefined[]){
+export function promptProject(account:string, project:string | null, callback: Function, ...args:any[] | undefined[]){
     // If "earthengine", project is not required, so it is set to null
     if(account==="earthengine"){
       // No need to pick a project if using stored credentials

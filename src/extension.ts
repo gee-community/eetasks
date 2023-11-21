@@ -5,11 +5,15 @@ import { EETasksPanel } from "./panels/EETasksPanel";
 import { updateAccounts, promptProject, 
     pickAccount, pickServiceAccount } from './utilities/accountPicker';
 import { scriptRunnerAsAccount,scriptRunnerAsServiceAccount } from './utilities/scriptRunners';
+import { authenticate } from './utilities/authenticate';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
   let scriptLog = vscode.window.createOutputChannel("EE Tasks: GEE script runs");
+  const singInCommand = vscode.commands.registerCommand("eetasks.signin",()=>{
+        authenticate();
+    }); 
   const updateAccountsCommand = vscode.commands.registerCommand("eetasks.updateUserAccounts",()=>{
         vscode.window.showInformationMessage("Looking for available accounts."); 
         updateAccounts(context);
@@ -68,6 +72,7 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(updateAccountsCommand); 
   context.subscriptions.push(runScriptCommand);
   context.subscriptions.push(runScriptAsServiceAccountCommand);
+  context.subscriptions.push(singInCommand);
 
 }
 

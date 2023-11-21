@@ -19,6 +19,10 @@
   "contributes": {
     "commands": [
       {
+        "command": "eetasks.signin",
+        "title": "EE Tasks: sign in"
+      },
+      {
         "command": "eetasks.run",
         "title": "EE Tasks: run GEE script"
       },

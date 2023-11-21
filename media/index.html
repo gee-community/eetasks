@@ -1,0 +1,44 @@
+<!--
+Adapted from the github-authentication extension* 
+https://github.com/microsoft/vscode/blob/main/extensions/github-authentication/media
+
+* Copyright (c) Microsoft Corporation, see:
+https://github.com/microsoft/vscode/blob/main/LICENSE.txt
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8" />
+	<title>Google Earth Engine Authentication - Sign In</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" type="text/css" media="screen" href="auth.css" />
+    <link rel="shortcut icon" href="#" type="image/x-icon">
+</head>
+
+<body>
+	<a class="branding" href="https://github.com/gee-community/eetasks">
+        Earth Engine Task Manager vscode extension 
+	</a>
+	<div class="message-container">
+		<div class="message">
+			You are signed in now and can close this page.
+		</div>
+		<div class="error-message">
+			An error occurred while signing in:
+			<div class="error-text"></div>
+		</div>
+	</div>
+	<script>
+		var search = window.location.search;
+		var error = (/[?&^]error=([^&]+)/.exec(search) || [])[1];
+		if (error) {
+			document.querySelector('.error-text')
+				.textContent = decodeURIComponent(error);
+			document.querySelector('body')
+				.classList.add('error');
+		}
+	</script>
+</body>
+
+</html>

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 /*
 Authentication to Google Earth Engine
 using the loopback oauth2 flow:
@@ -11,11 +12,15 @@ https://github.com/microsoft/vscode/blob/main/LICENSE.txt
 */
 import * as path from 'path';
 import * as vscode from 'vscode';
+import { getTokenFromCredentials } from '../utilities/getToken';
 import { LoopbackAuthServer } from './loopbackAuthServer';
 
 const TIMED_OUT_ERROR = "Timed out.";
 const USER_CANCELLATION_ERROR = "User cancelled.";
-const CLIENT_ID = "517222506229-vsmmajv00ul0bs7p89v5m89qs8eb9359.apps.googleusercontent.com";
+
+const GEE_AUTH_ID = "517222506229-vsmmajv00ul0bs7p89v5m89qs8eb9359.apps.googleusercontent.com";
+const GEE_AUTH_SECRET = "RUP0RZ6e0pPhDzsqIJ7KlNd1";
+
 const SCOPES = "https://www.googleapis.com/auth/userinfo.email "+
 "https://www.googleapis.com/auth/earthengine "+
 "https://www.googleapis.com/auth/devstorage.full_control";
@@ -27,9 +32,11 @@ const baseUri = vscode.Uri.from({
 
 export async function authenticate(){
     try{
-        const code =  await authorizationCode();    
-        console.log("Authorization worked.");
-        // TODO next: exchange code for refresh token.
+        const authResponse =  await authorizationCode();    
+        const exchangeResponse = await exchangeCodeForToken(authResponse);
+        // {access_token, expires_in, refresh_token, ...}
+        // TODO: save refresh_token as a secret
+        vscode.window.showInformationMessage("You are now signed in.");
     }catch(e:any){
         console.log("EE tasks: sign in failed: " + e);
         vscode.window.showErrorMessage(
@@ -65,17 +72,23 @@ the response.
     or when the user Cancels the process, or when the
     authorization code is retrieved.
 - The function returns a Promise that resolves to
-the authorization code, or rejects with an error. 
+{code: string, port: number}
+or rejects with an error. 
 */
+interface IAuthResponse{
+    code:string,
+    port:number,
+    nonce:string
+}
 async function authorizationCode(
-): Promise<string> {
-	return await vscode.window.withProgress<string>({
+): Promise<IAuthResponse> {
+	return await vscode.window.withProgress<IAuthResponse>({
 		location: vscode.ProgressLocation.Notification,
 		title: "Signing in to accounts.google.com",
 		cancellable: true
 	}, async (_, cancellationToken) => {
 		const searchParams = new URLSearchParams([
-			['client_id', CLIENT_ID],
+			['client_id', GEE_AUTH_ID],
                ['response_type', 'code'],
 			['scope', SCOPES],
 		]);
@@ -112,6 +125,25 @@ async function authorizationCode(
 				void server.stop();
 			}, 5000);
 		}
-    return codeToExchange;
+    return {code: codeToExchange, port: port, nonce: server.nonce};
 });
+}
+
+/*
+Sends a POST request to exchange the authorization code for a token
+Returns a Promise that resolves to:
+{access_token: string, expires_in: number, refresh_token: string,
+scope: string, token_type: 'Bearer'}
+or rejects the promise with the error.
+See:
+https://developers.google.com/identity/protocols/oauth2/native-app#exchange-authorization-code
+*/
+function exchangeCodeForToken(authResponse: IAuthResponse){
+    return getTokenFromCredentials({
+        code: authResponse.code,
+        redirect_uri: `http://localhost:${authResponse.port}/callback?nonce=${authResponse.nonce}`,
+        client_id: GEE_AUTH_ID,
+        client_secret: GEE_AUTH_SECRET,
+        grant_type: "authorization_code"
+    });
 }

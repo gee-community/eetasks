@@ -12,13 +12,15 @@ https://github.com/microsoft/vscode/blob/main/LICENSE.txt
 */
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { getTokenFromCredentials } from '../utilities/getToken';
+import { SecretStorage } from "vscode";
+import { getTokenFromCredentials, validateToken } from '../utilities/getToken';
 import { LoopbackAuthServer } from './loopbackAuthServer';
 
 const TIMED_OUT_ERROR = "Timed out.";
 const USER_CANCELLATION_ERROR = "User cancelled.";
 
-const GEE_AUTH_ID = "517222506229-vsmmajv00ul0bs7p89v5m89qs8eb9359.apps.googleusercontent.com";
+const GEE_AUTH_ID = "517222506229-vsmmajv00ul0bs7p89v5m89qs8eb9359"+
+".apps.googleusercontent.com";
 const GEE_AUTH_SECRET = "RUP0RZ6e0pPhDzsqIJ7KlNd1";
 
 const SCOPES = "https://www.googleapis.com/auth/userinfo.email "+
@@ -30,13 +32,47 @@ const baseUri = vscode.Uri.from({
     path: "/o/oauth2/auth"
 });
 
-export async function authenticate(){
+
+/*
+🔲 TODO:
+    - accountPicker but only signedInAccounts.
+    - on picked, erase account from secrets.store
+    and from signedInAccounts (globalState store)
+*/
+export function signout(){
+// TODO
+}
+
+export async function signin(context: vscode.ExtensionContext){
     try{
         const authResponse =  await authorizationCode();    
-        const exchangeResponse = await exchangeCodeForToken(authResponse);
-        // {access_token, expires_in, refresh_token, ...}
-        // TODO: save refresh_token as a secret
-        vscode.window.showInformationMessage("You are now signed in.");
+        const exchangeResponse:any = await exchangeCodeForToken(authResponse);
+        if ("access_token" in exchangeResponse){
+            const validation:any|null = await validateToken(exchangeResponse.access_token);
+            if(validation){
+                if("email" in validation){
+                    const accountName = validation.email;
+                    const token = validation.token;
+                    const refreshToken = exchangeResponse.refresh_token;
+                    let extensionState = context.globalState;
+                    const account = {
+                        kind: "signedIn",
+                        token: token
+                    };
+                    let accounts:any = extensionState.get("signedInAccounts");
+                    if (!accounts){
+                        accounts={}; 
+                    }
+                    // Add account to extension state (store: signedInAccounts)
+                    accounts[accountName]=account;
+                    extensionState.update("signedInAccounts", accounts);
+                    const secrets: SecretStorage = context.secrets;
+                    // Save refresh token as a secret:
+                    secrets.store(accountName, refreshToken);
+                    vscode.window.showInformationMessage("You are now signed in.");
+                }
+            }
+        }
     }catch(e:any){
         console.log("EE tasks: sign in failed: " + e);
         vscode.window.showErrorMessage(

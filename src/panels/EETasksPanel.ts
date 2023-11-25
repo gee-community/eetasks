@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import { IPickedAccount } from "../utilities/accountPicker";
 import { getUri } from "../utilities/getUri";
 import { getNonce } from "../utilities/getNonce";
 import { getAccountToken } from "../utilities/getToken";
@@ -10,12 +11,15 @@ export class EETasksPanel {
   private readonly _panel: vscode.WebviewPanel;
   private _disposables: vscode.Disposable[] = [];
   private _extensionState: any; 
-  private _account: string; 
+  private _account: IPickedAccount; 
   private _project: string | null; 
   private _privateKey: any; 
+  private _context: any;
 
-  private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, extensionState: any, 
-    account: string, project: string | null, privateKey?: any) {
+  private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, 
+    extensionState: any, context:any,
+    account: IPickedAccount, project: string | null, privateKey?: any) {
+    this._context = context;
     this._extensionState = extensionState;
     this._panel = panel;
     this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
@@ -44,7 +48,7 @@ export class EETasksPanel {
   and calls the main eeTasks function. 
   */
   private _asPrivateKey(){
-      this._account="service-account";
+      this._account={name:"service-account",kind:"service-account"};
       console.log("Processing with private key");
       ee.data.authenticateViaPrivateKey(this._privateKey,
           ()=>this._eeTasks(null),
@@ -86,7 +90,7 @@ export class EETasksPanel {
       ee.data.listOperations(limit, (tasks:any)=>{
           var table = this._parseTasks(tasks);
           if(table.length<1){
-              vscode.window.showInformationMessage("No tasks found for "+this._account);
+              vscode.window.showInformationMessage("No tasks found for "+this._account.name);
           }else{
           console.log("Sending tasks metadata to webview data-grid " + this._panel.title);
           }
@@ -149,7 +153,7 @@ export class EETasksPanel {
   Once ee is authenticated, it calls the main eeTasks function.
   */
   private _asAccount(){
-      getAccountToken(this._account, this._extensionState)
+      getAccountToken(this._account, this._extensionState, this._context)
       .then((token:any)=>{
           ee.data.setAuthToken('', 'Bearer', token, 3600, [], 
           ()=>this._eeTasks(this._project), false);
@@ -165,24 +169,21 @@ export class EETasksPanel {
   https://github.com/microsoft/vscode-webview-ui-toolkit/blob/main/docs/getting-started.md
   */
 
-  public static render(account: string, project: string | null,
+  public static render(account: IPickedAccount, project: string | null,
     context: vscode.ExtensionContext,
     privateKey?: any) {
     let extensionUri = context.extensionUri;
     let extensionState = context.globalState;
     
-    let panelName = "EE Tasks: " + account;
-    if(project){
-       panelName=panelName + " (" + project + ")"; 
-    }
-
+    let panelName = "EE Tasks: " + account.name;
     const panel = vscode.window.createWebviewPanel("open-panel", panelName, vscode.ViewColumn.One, {
     // Enable javascript in the webview
     enableScripts: true,
     // Restrict the webview to only load resources from the `out` directory
     localResourceRoots: [vscode.Uri.joinPath(extensionUri, 'out')]
       });
-    EETasksPanel.currentPanel = new EETasksPanel(panel, extensionUri, extensionState, account, project, privateKey);
+    EETasksPanel.currentPanel = new EETasksPanel(
+        panel, extensionUri, extensionState, context, account, project, privateKey);
     return EETasksPanel.currentPanel;
   }
 

@@ -3,25 +3,20 @@
 Authentication to Google Earth Engine
 using the loopback oauth2 flow:
 https://developers.google.com/identity/protocols/oauth2/native-app#redirect-uri_loopback
-
-Adapted from the github-authentication extension* 
-https://github.com/microsoft/vscode/blob/main/extensions/github-authentication
-
-* Copyright (c) Microsoft Corporation, see:
-https://github.com/microsoft/vscode/blob/main/LICENSE.txt
 */
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { SecretStorage } from "vscode";
+import { pickSignedInAccount, IAccount, IAccounts } from "./accountPicker";
 import { getTokenFromCredentials, validateToken } from '../utilities/getToken';
 import { LoopbackAuthServer } from './loopbackAuthServer';
 
 const TIMED_OUT_ERROR = "Timed out.";
 const USER_CANCELLATION_ERROR = "User cancelled.";
 
-const GEE_AUTH_ID = "517222506229-vsmmajv00ul0bs7p89v5m89qs8eb9359"+
+export const GEE_AUTH_ID = "517222506229-vsmmajv00ul0bs7p89v5m89qs8eb9359"+
 ".apps.googleusercontent.com";
-const GEE_AUTH_SECRET = "RUP0RZ6e0pPhDzsqIJ7KlNd1";
+export const GEE_AUTH_SECRET = "RUP0RZ6e0pPhDzsqIJ7KlNd1";
 
 const SCOPES = "https://www.googleapis.com/auth/userinfo.email "+
 "https://www.googleapis.com/auth/earthengine "+
@@ -34,15 +29,39 @@ const baseUri = vscode.Uri.from({
 
 
 /*
-🔲 TODO:
-    - accountPicker but only signedInAccounts.
-    - on picked, erase account from secrets.store
-    and from signedInAccounts (globalState store)
+Shows an accountPicker only for signed-in accounts
+Upon picking an account, deletes the account from the 
+extension context, as well as the secret refresh token.
 */
-export function signout(){
-// TODO
+export async function signout(context: vscode.ExtensionContext){
+    let accountName:string|undefined = await pickSignedInAccount(context);
+    if(accountName){
+        let userAccounts:IAccounts;
+        let accounts:any = context.globalState.get("userAccounts");
+        if (accounts){
+            userAccounts = accounts;
+        }else{
+            userAccounts = {};
+        }
+        delete accounts[accountName];
+        context.globalState.update("userAccounts", accounts);
+        const secrets: SecretStorage = context.secrets;
+        secrets.delete(accountName)
+        .then(()=>{
+            vscode.window.showInformationMessage(
+                `${accountName} is now signed out.`
+            );
+        });
+    }
 }
 
+/*
+Initiates the oauth flow
+if user signs in,  
+saves the refresh token as a secret
+and adds the user account to the extension state,
+replacing the gcloud account of the same name if it exists.
+*/
 export async function signin(context: vscode.ExtensionContext){
     try{
         const authResponse =  await authorizationCode();    
@@ -55,21 +74,24 @@ export async function signin(context: vscode.ExtensionContext){
                     const token = validation.token;
                     const refreshToken = exchangeResponse.refresh_token;
                     let extensionState = context.globalState;
-                    const account = {
-                        kind: "signedIn",
+                    const account:IAccount = {
+                        kind: "Signed in",
                         token: token
                     };
-                    let accounts:any = extensionState.get("signedInAccounts");
-                    if (!accounts){
-                        accounts={}; 
+                    let userAccounts:IAccounts;
+                    let accounts:any = extensionState.get("userAccounts");
+                    if (accounts){
+                        userAccounts = accounts;
+                    }else{
+                        userAccounts = {};
                     }
-                    // Add account to extension state (store: signedInAccounts)
                     accounts[accountName]=account;
-                    extensionState.update("signedInAccounts", accounts);
+                    extensionState.update("userAccounts", accounts);
                     const secrets: SecretStorage = context.secrets;
-                    // Save refresh token as a secret:
                     secrets.store(accountName, refreshToken);
-                    vscode.window.showInformationMessage("You are now signed in.");
+                    vscode.window.showInformationMessage(
+                        `You are now signed in as ${accountName}`);
+                    return accounts;
                 }
             }
         }
@@ -77,6 +99,7 @@ export async function signin(context: vscode.ExtensionContext){
         console.log("EE tasks: sign in failed: " + e);
         vscode.window.showErrorMessage(
             "Sign in to accounts.google.com failed: \n " + e);
+        return {}; 
     }
 }
 
@@ -110,6 +133,12 @@ the response.
 - The function returns a Promise that resolves to
 {code: string, port: number}
 or rejects with an error. 
+
+Adapted from the github-authentication extension* 
+https://github.com/microsoft/vscode/blob/main/extensions/github-authentication
+
+* Copyright (c) Microsoft Corporation, see:
+https://github.com/microsoft/vscode/blob/main/LICENSE.txt
 */
 interface IAuthResponse{
     code:string,

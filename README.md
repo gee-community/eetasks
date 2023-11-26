@@ -39,13 +39,13 @@ Multiple panels may be opened to view the tasks for different accounts.
 
 If there are at least two accounts available to the extension, you will be prompted to select an account when using either the `EE Tasks: view tasks` or `EE Tasks: run GEE script`. 
 
-Accounts signed-in through the extension (`EE Tasks: sign in`) show with a ![codicon:account](https://raw.githubusercontent.com/microsoft/vscode-codicons/main/src/icons/account.svg) icon next to them. 
+Accounts signed-in through the extension (`EE Tasks: sign in`) show with a 👤 icon next to them. 
 
 > You can remove a signed-in account with `EE Tasks: sign out`. 
 
 Other available accounts are updated with the `EE Tasks: update available accounts`. 
 
-The ![snake](https://raw.githubusercontent.com/microsoft/vscode-codicons/main/src/icons/snake.svg) `earthengine` account refers to the credentials stored and managed by the earthengine Python API. The EE Tasks extension will not modify these credentials. 
+The 🐍 `earthengine` account refers to the credentials stored and managed by the earthengine Python API. The EE Tasks extension will not modify these credentials. 
 
 You might also have [gcloud](https://cloud.google.com/sdk/docs/install) installed if you use the [Earth Engine command line tool](https://developers.google.com/earth-engine/guides/command_line) (the python API client also uses `gcloud` in some environments). The `application-default` account refers to the
 [application default credentials](https://cloud.google.com/sdk/gcloud/reference/auth/application-default) used by gcloud.

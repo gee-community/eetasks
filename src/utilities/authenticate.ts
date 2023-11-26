@@ -81,12 +81,20 @@ export async function signin(context: vscode.ExtensionContext){
                     let userAccounts:IAccounts;
                     let accounts:any = extensionState.get("userAccounts");
                     if (accounts){
+    // Backwards compatibility
+    // In previous versions, userAccounts were simply account(string):token(string)
+    // key:value pairs. If we detect this, we need to remove them.
+                        let accKeys = Object.keys(accounts);
+                        let sampleAccount = accounts[accKeys[0]];
+                        if(typeof sampleAccount === "string"){
+                            accounts={};
+                        }
                         userAccounts = accounts;
                     }else{
                         userAccounts = {};
                     }
-                    accounts[accountName]=account;
-                    extensionState.update("userAccounts", accounts);
+                    userAccounts[accountName]=account;
+                    extensionState.update("userAccounts", userAccounts);
                     const secrets: SecretStorage = context.secrets;
                     secrets.store(accountName, refreshToken);
                     vscode.window.showInformationMessage(

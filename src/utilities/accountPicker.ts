@@ -198,8 +198,12 @@ export async function pickSignedInAccount(
     if(nAccounts>0){
          let k: keyof typeof userAccounts;
         for (k in userAccounts){       
+            if(typeof userAccounts[k] !== "string"){ // Backwards comp.
             accKind=userAccounts[k].kind;
-            accountItems.push({label:k});
+            if(accKind==="Signed in"){
+                accountItems.push({label:k});
+            }
+            }
         }
         nAccounts=accountItems.length;
     }
@@ -240,6 +244,17 @@ export async function pickAccount(project: string | null, context: vscode.Extens
     if(uAccounts){
         userAccounts = uAccounts;
         nAccounts = Object.keys(userAccounts).length;
+    }
+
+    // Backwards compatibility patch:
+    // In previous versions, userAccounts were simply account(string):token(string)
+    // key:value pairs. If we detect this, the accounts need to be updated.
+    if(nAccounts>0){
+        let accKeys = Object.keys(userAccounts);
+        let sampleAccount = userAccounts[accKeys[0]];
+        if(typeof sampleAccount === "string"){
+           nAccounts=0;  
+        }
     }
 
     // If there are no user accounts yet,

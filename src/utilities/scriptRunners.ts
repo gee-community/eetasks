@@ -42,6 +42,7 @@ It's also unlikely to be a bug in ee itself, as the issue doesn't occur
 in nodejs directly.  
 */
 import * as vscode from 'vscode';
+import { IPickedAccount } from './accountPicker';
 import { getAccountToken } from './getToken';
 import { mkdtemp, rmdir } from 'node:fs/promises';
 import path = require("path");
@@ -130,7 +131,7 @@ function scriptRunner(project:string | null, document:vscode.TextDocument, log:v
   }
 }
 
-export function scriptRunnerAsAccount(account:string, project: string | null, 
+export function scriptRunnerAsAccount(account:IPickedAccount, project: string | null, 
     context:vscode.ExtensionContext, log:vscode.OutputChannel){
   /*
   Runs a GEE script using a user account/project
@@ -140,7 +141,7 @@ export function scriptRunnerAsAccount(account:string, project: string | null,
       let document = editor.document;
       const documentUri = document.uri;
       if (documentUri.scheme==='file'){
-        getAccountToken(account, context.globalState)
+        getAccountToken(account, context.globalState, context)
         .then((token:any)=>{
           ee.data.setAuthToken('', 'Bearer', token, 3600, [], 
             ()=>scriptRunner(project, document, log)

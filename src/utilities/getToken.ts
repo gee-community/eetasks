@@ -1,4 +1,7 @@
-import { getEECredentials } from './accountPicker';
+/* eslint-disable @typescript-eslint/naming-convention */
+import { ExtensionContext, SecretStorage } from 'vscode';
+import { IPickedAccount, getEECredentials } from './accountPicker';
+import { GEE_AUTH_ID, GEE_AUTH_SECRET } from './authenticate';
 import https = require('https');
 /*
 Handles retrieving a token for an account, either
@@ -8,19 +11,23 @@ extension state for later reuse.
 Returns a Promise that resolves to the token (string) 
 or rejects with an error. 
 */
-export function getAccountToken(account:string, extensionState:any){
+export async function getAccountToken(account:IPickedAccount, extensionState:any, context: ExtensionContext){
    return new Promise((resolve, reject) => {
-        validateToken(checkStateForExistingToken(account, extensionState))
-        .then((tokenInfo:any)=>{
+        validateToken(checkStateForExistingToken(account.name, extensionState))
+        .then(async (tokenInfo:any)=>{
             if((! tokenInfo)){
-                console.log("Generating a new token for " + account);
-                newToken(account)
-                .then((tok:any)=>{
-                saveToken(tok, account, extensionState);
-                resolve(tok);
-                }).catch((err:any)=>{reject("Error generating a new token. \n" + err);});
+                console.log("Generating a new token for " + account.name);
+                try{
+                const token:any = await newToken(account, context);
+                if(token){
+                 saveToken(token, account.name, extensionState);   
+                }
+                resolve(token);
+                }catch(err){
+                  reject("Error generating a new token. \n" + err);
+                }
             }else{
-            console.log("Reusing valid token for " + account); 
+            console.log("Reusing valid token for " + account.name); 
             resolve(tokenInfo.token);
             }
         }
@@ -40,7 +47,7 @@ function checkStateForExistingToken(account:string, extensionState:any){
     let accounts = extensionState.get("userAccounts"); 
     if(accounts){
         if (account in accounts){
-            token = accounts[account];
+            token = accounts[account].token;
         }
     }
     return token;
@@ -54,7 +61,7 @@ Returns a Promise that resolves to:
 {"expires_in", "access_type", "token", ...} for a valid token, 
 or null if the token is invalid or there is an error
 */
-function validateToken(token:string|null){
+export function validateToken(token:string|null){
  const oauthHost="oauth2.googleapis.com";
   return new Promise((resolve) => {
     if (! token){resolve(null);}
@@ -98,10 +105,16 @@ function validateToken(token:string|null){
   the JSON result (which includes the token),
   or rejects with a JSON result including the error description.
 */   
-function newToken(account:string){
-    return account === "earthengine" 
-    ? getTokenFromPersistentCredentials() : gcloud(account);
-  }
+function newToken(account:IPickedAccount, context: ExtensionContext){
+    switch(account.kind){
+        case "Signed in":
+            return getTokenFromSignedInAccount(account.name, context); 
+        case "python earthengine-api credentials":
+            return getTokenFromPersistentCredentials();
+        case "gcloud":
+            return gcloud(account.name);
+    }
+}
 
 
 /*
@@ -125,13 +138,39 @@ function getTokenFromPersistentCredentials(){
 }
 
 /*
+Reads the secret store for the given account, 
+prepares the credentials and calls getTokenFromCredentials
+Returns a Promise that resolves to the token 
+or rejects with the error.
+*/
+function getTokenFromSignedInAccount(account:string, context:ExtensionContext){
+    return new Promise((resolve, reject)=>{
+        const secrets: SecretStorage = context.secrets;
+        secrets.get(account).then((refreshToken)=>{
+        if(refreshToken){
+        getTokenFromCredentials({
+            client_id: GEE_AUTH_ID,
+            client_secret: GEE_AUTH_SECRET,
+            grant_type: "refresh_token",
+            refresh_token: refreshToken
+        })
+        .then((tokenInfo:any)=>{
+            resolve(tokenInfo.access_token);
+        }).catch((err:any)=>reject(err));
+        }
+        });        
+    });
+}
+
+
+/*
 Sends a POST request to https://oauth2.googleapis.com/token
 with the given credentials
 Returns a Promise that resolves to the given Token:
 {"access_token", "expires_in", etc..}
 or rejects the promise with the error. 
 */
-function getTokenFromCredentials(credentials:any) {
+export function getTokenFromCredentials(credentials:any) {
 /* eslint-disable @typescript-eslint/naming-convention */
  const oauthHost="oauth2.googleapis.com";
  let dataEncoded = JSON.stringify(credentials);
@@ -191,11 +230,11 @@ function gcloud(account:string){
 /*
 Handles saving an account token to the extention state.
 */
-function saveToken(token:string, account:string, extensionState:any){
+export function saveToken(token:string, account:string, extensionState:any){
     let accounts = extensionState.get("userAccounts"); 
     if(accounts){
         if (account in accounts){
-            accounts[account] = token;
+            accounts[account].token = token;
             extensionState.update("userAccounts", accounts);
         }
     }

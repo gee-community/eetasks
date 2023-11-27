@@ -16,42 +16,47 @@ Open a table view of Earth Engine tasks for a user or service account.
 
 Run GEE code from within vscode! Learn more about what is [currently supported here](https://github.com/gee-community/eetasks/blob/main/docs/runGEEscripts.md). 
 
-### EE Tasks: update available accounts
-
-Use this command if you expect to use this extension for [multiple accounts](#multi-account-views). The command is run automatically upon first use of either the [view tasks](#ee-tasks-view) or [run gee script](#ee-tasks-run-gee-script) commands. 
 
 ## Requirements
 
-A [Google Earth Engine account](https://code.earthengine.google.com/register) is required to use the Earth Engine Tasks Manager extension. Additionally, either the [Earth Engine command line tool](https://developers.google.com/earth-engine/guides/command_line) (eecli) or the Earth Engine [python client library](https://developers.google.com/earth-engine/guides/python_install) must have been used to authenticate an account. If you are familiar with the [gcloud cli](https://cloud.google.com/sdk/docs/install) and have already [authenticated](https://cloud.google.com/sdk/gcloud/reference/auth/login) an earth engine account, you can also use `gcloud` to authenticate the Earth Engine library for this extension. 
+A [Google Earth Engine account](https://code.earthengine.google.com/register) is required to use the Earth Engine Tasks Manager extension. 
 
-### Multi-account views
+### Sign in options
+
+Use the `EE Tasks: sign in` command to add an account to use with the EE Tasks extension.  
+
+You might already have an account ready to use with the extension (no sign-in required) if you are a user of the Earth Engine [python client library](https://developers.google.com/earth-engine/guides/python_install) or the [Earth Engine command line tool](https://developers.google.com/earth-engine/guides/command_line) (eecli). Use the `EE Tasks: update available accounts` to make these accounts available to the extension. This command will run automatically upon first use of either the [view tasks](#ee-tasks-view) or [run gee script](#ee-tasks-run-gee-script) commands, if there are no signed-in accounts yet. 
+
+## Multi-account views
 
 ![eetasks-multi](https://raw.githubusercontent.com/gee-community/eetasks/main/docs/assets/eetasks-multi.png)
 
 Multiple panels may be opened to view the tasks for different accounts. 
 
-#### Interactive account selection
-
-The available user accounts are populated using the [EE Tasks: update available accounts](#ee-tasks-update-available-accounts) command at any time. This command is automatically called upon the first time you run either the [EE Tasks: view tasks](#ee-tasks-view-tasks) or the [EE Tasks: run GEE script](#ee-tasks-run-gee-script) commads.
+### Interactive account selection
 
 ![eetasks-users](https://raw.githubusercontent.com/gee-community/eetasks/main/docs/assets/eetasks-users.png)
 
-The `earthengine` account refers to the credentials stored and managed by the earthengine Python API. The EE Tasks extension will not modify these credentials. 
+If there are at least two accounts available to the extension, you will be prompted to select an account when using either the `EE Tasks: view tasks` or `EE Tasks: run GEE script`. 
 
-The `application-default` account refers to the
-[application default credentials](https://cloud.google.com/sdk/gcloud/reference/auth/application-default) in `gcloud`.
+Accounts signed-in through the extension (`EE Tasks: sign in`) show with a 👤 icon next to them. 
 
-The other accounts shown (if any) are managed by the `gcloud cli` (as well as the earthengine cli through `gcloud`). You can use `gcloud auth login` to add an additional user, and `gcloud auth list` to display the accounts. If you update the credentialed accounts with `gcloud`, update them in the extension by using the [EE Tasks: update available accounts](#ee-tasks-update-available-accounts). 
+> You can remove a signed-in account with `EE Tasks: sign out`. 
 
-When selecting an account other than `earthengine`, you will also be prompted to specify a project to use. 
+Other available accounts are updated with the `EE Tasks: update available accounts`. 
+
+The 🐍 `earthengine` account refers to the credentials stored and managed by the earthengine Python API. The EE Tasks extension will not modify these credentials. 
+
+You might also have [gcloud](https://cloud.google.com/sdk/docs/install) installed if you use the [Earth Engine command line tool](https://developers.google.com/earth-engine/guides/command_line) (the python API client also uses `gcloud` in some environments). The `application-default` account refers to the
+[application default credentials](https://cloud.google.com/sdk/gcloud/reference/auth/application-default) used by gcloud.
+
+Other `gcloud` accounts shown (if any) are accounts that have been authenticated using `gcloud auth login` (you can use `gcloud auth list` to display these accounts). If the account has already been signed-in through the extension, it will not be repeated under `gcloud`. 
+
+When using the `EE tasks: run GEE script` command, you will also be prompted for a [project](https://developers.google.com/earth-engine/cloud/projects). 
 
 #### Default account
 
-![eetasks-default](https://raw.githubusercontent.com/gee-community/eetasks/main/docs/assets/eetasks-default.png)
-
-You may also specify a default account and project to use with the `EE tasks: view tasks (default account)`. You may specify any of the available accounts. 
-
-If the project is left blank and the account is not `earthengine`, you will be prompted for it. If the account is blank, you will prompted for it. Specifying an account that is not any of the available accounts will not work. 
+The `EE Tasks: view tasks (default account)` can be used to open a tasks panel view without having to select the account. You can set the default account to use with the `EE Tasks: set default account`. This is only useful if there is more than one account available to the extension.
 
 #### Service account (advanced use)
 
@@ -64,11 +69,6 @@ There is also a variation of the [EE Tasks: run GEE script](#ee-tasks-run-gee-sc
 This extension contributes the following settings:
 
 * `eetasks.limit`: Maximum number of tasks to request from earthengine. This value is set by default to null (blank), which means that there is no limit to the number of tasks to retrieve. 
-
-* `eetasks.defaultProject`: The default earthengine project to use with the `EE Tasks: view tasks (default account)` command.
-
-* `eetasks.defaultAccount`: The default earthengine account to use with the `EE Tasks: view tasks (default account)` command.
-
 
 ## Known Issues
 

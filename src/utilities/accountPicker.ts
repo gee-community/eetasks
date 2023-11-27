@@ -373,7 +373,8 @@ export function promptProject(account:IPickedAccount, project:string | null, cal
         }else{
 
         vscode.window.showInputBox({
-            title: "Select a project to use.", 
+            title: "Type the name of the project to use.", 
+            value: "earthengine-legacy",
             prompt: "Example: earthengine-legacy"
         })  
         .then(function(project){

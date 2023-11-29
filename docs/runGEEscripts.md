@@ -43,7 +43,7 @@ However, simple client-side errors will be caught:
 
 ![hellogee-log](https://raw.githubusercontent.com/gee-community/eetasks/main/docs/assets/helloGEE-syntaxError.png)
 
-> ❗ See another [caveat for Windows users here](#caveat-for-windows-users).
+> ❗ See another [caveat for Windows and MacOS users here](#caveat-for-windows-and-macos-users).
 
 ## Not recommended use cases
 
@@ -59,7 +59,7 @@ Outside of the specific use-cases defined above, **it is not recommended to run 
 
 ![ExportTableSuccessFail](https://raw.githubusercontent.com/gee-community/eetasks/main/docs/assets/print.png)
 
-> ⚠️ In windows, do not use the `.getInfo` methods directly. [Here's why](#caveat-for-windows-users). In linux, this shouldn't be an issue.  
+> ⚠️ In windows or MacOS, do not use the `.getInfo` methods directly. [Here's why](#caveat-for-windows-and-macos-users). In Linux, this shouldn't be an issue.  
 
 ### `Export`
 
@@ -101,12 +101,14 @@ The example above works because the function `addOne` does not use any of these,
 
 However.. if you are using `require` you are probably already doing something more complicated than the [recommended use cases](#use-cases) for `EE Tasks: run GEE script`. 
 
-## Caveat for windows users
+## Caveat for windows and MacOS users
 
-For some unknown reason, synchronous calls to some `ee` methods (e.g., most notably `getInfo`) do not work when running from vscode. Even stranger, this issue only occurs in windows. This is unlikely to be a bug with `ee` itself, as running the same code directly in `node` does work in Windows, so the issue is isolated to within vscode. 
+For some unknown reason, synchronous calls to some `ee` methods (e.g., most notably `getInfo`) do not work when running from vscode. Even stranger, this issue causes different behaviors depending on your OS. This is unlikely to be a bug with `ee` itself, as running the same code directly in `node` does work (in any OS), so the issue is isolated to within vscode. 
 
-See more details in the [question](https://stackoverflow.com/questions/77436205/synchronous-function-call-to-external-library-within-vscode-freezes-only-in-wind) posted to StackOverflow, and if you have some insight please share it. 
+See more details in the [question](https://stackoverflow.com/questions/77436205/vscode-specific-issue-with-node-xmltthprequest-sync-crashes-extension-host-in-w) posted to StackOverflow, and if you have some insight please share it. 
 
-What happens when I use `getInfo` (or other method that accepts a callback function) synchronously through a GEE script in `EE Tasks: run GEE script` in windows? 
+What happens when I use `getInfo` (or other method that accepts a callback function) synchronously through a GEE script in `EE Tasks: run GEE script`?
 
-Nothing really.. the error is not caught properly (there will be no message showing that the script run failed), but any other call to a `EE Tasks` extension will not work. A simple `Developer: Reload Window` will get the extension working back to normal. 
+- In Linux: nothing, this works as expected.
+- In MacOS: an error is raised: `Error: EROFS: read-only file system, open '.node-xmlhttprequest-sync-32376`  
+- In Windows: the error is not caught and the Extension Host crashes. Any extension command (from any extension) will not work. However, a simple `Developer: Reload Window` will get the extension host back to normal. 

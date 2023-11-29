@@ -75,3 +75,5 @@ This extension contributes the following settings:
 - The tasks tables do not refresh automatically. However, you can use the refresh button (🔄) to update the table on demand. 
 - The intended use for the `EE Tasks: run GEE script` is limited and currently experimental (recommended for experienced users only). [Learn more about it here](https://github.com/gee-community/eetasks/blob/main/docs/runGEEscripts.md).
     - An unknown cause for an issue prevents the use of synchronous calls to some `ee` functions in Windows. Learn more about it [here](https://github.com/gee-community/eetasks/blob/main/docs/runGEEscripts.md#caveat-for-windows-users)
+    - In MacOS, the same issue raises an error: `Error: EROFS: read-only file system, open '.node-xmlhttprequest-sync-32376'`.
+    - In Linux, it works as expected. 

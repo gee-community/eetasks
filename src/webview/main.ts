@@ -45,18 +45,42 @@ function handleRefreshClick() {
   });
 }
 
+function countState(data:[any], state:string){
+    let N = 0;
+    data.forEach((x)=>{
+    if("State" in x){
+        if(x["State"]===state){
+            N+=1;
+        }
+    }
+    });
+    return N;
+}
+
 function updateTable(data:any){
+const label = document.getElementById('status-label');
 if (data.length<1){
-  const label = document.getElementById('status-label');
   if(label){
   label.textContent = "No tasks found.";
   }
-
 }else{
+const statsLabel = document.getElementById('stats-label');
 const grid = document.getElementById("basic-grid") as DataGrid; 
 grid.rowsData = data; 
-const label = document.getElementById('status-label');
 if(label){label.textContent = "";}
+if(statsLabel){
+    const nTotal = data.length;
+    const nDone = countState(data, "SUCCEEDED");
+    const nRunning = countState(data, "RUNNING");
+    const nPending = countState(data, "PENDING");
+    const nCancelled = countState(data, "CANCELLED");
+
+    statsLabel.textContent = `  ${nTotal} tasks in total  `+
+    `|  COMPLETED: ${nDone}   `+
+    `|  RUNNING: ${nRunning}   `+
+    `|  PENDING: ${nPending}   `+
+    `|  CANCELLED: ${nCancelled}`;
+  }
 }
 
 vscode.setState(data);

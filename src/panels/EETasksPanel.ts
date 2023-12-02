@@ -62,6 +62,7 @@ export class EETasksPanel {
   Main ee initialization and callback to retrieve the ee tasks
   */
   private _eeTasks(project:any){
+    try{
     ee.initialize(null, null, 
     ()=>{
         try{
@@ -75,8 +76,10 @@ export class EETasksPanel {
             return;
         }
     }, 
-    (error:any)=>{console.log("Error initializing earth engine. \n"); console.log(error);}, 
+    (error:any)=>{vscode.window.showErrorMessage("Error initializing earth engine. \n"+error);}, 
     null, project);
+    }catch(err){
+    };
   }
 
   /*
@@ -127,6 +130,7 @@ export class EETasksPanel {
         EndTime: string;
         BatchEECU: string;
     }[] = []; 
+    if(tasks){
     tasks.forEach((element: {metadata: any; name: any;}) => {
       name = element.name;
       metadata = element.metadata;
@@ -142,6 +146,7 @@ export class EETasksPanel {
       };
       data.push(row);
     });
+    }
     return data;
   }
 
@@ -216,8 +221,11 @@ export class EETasksPanel {
           <title>Earth Engine Task Manager</title>
         </head>
         <body>
-          <vscode-button id="refresh">🔄</vscode-button> 
-          <p id="status-label"><p>
+        <div>
+          <vscode-button id="refresh">🔄</vscode-button>
+          <p style="display:inline" id="stats-label"></p>
+        </div>
+          <p id="status-label"></p>
           <vscode-data-grid id="basic-grid" aria-label="Basic" generate-header="sticky"></vscode-data-grid>
            <script type="module" nonce="${nonce}" src="${webviewUri}"></script>
         </body>

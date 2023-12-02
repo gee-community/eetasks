@@ -1,5 +1,9 @@
 # Change Log
 
+## v0.2.1 
+
+- Added a label to the Tasks panel displaying aggregated information about the tasks (total number of tasks and by State -- completed, running, etc.).
+
 ## v0.2.0
 
 - New authentication method: sign-in (or out) of an account directly through the extension.

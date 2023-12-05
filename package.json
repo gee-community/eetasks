@@ -1,7 +1,7 @@
 {
   "name": "eetasks",
-  "displayName": "eetasks",
-  "description": "Earth Engine Task Manager",
+  "displayName": "Earth Engine Task Manager",
+  "description": "Monitor and submit Google Earth Engine (GEE) tasks.",
   "publisher": "gee-community",
   "repository": {
     "type": "git",

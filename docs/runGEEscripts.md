@@ -37,13 +37,13 @@ Internally, the EE Tasks extension wraps your code in a function that handles th
 
 Why would I want to run a GEE script in vscode? Short answer: [just because I can](https://i.kym-cdn.com/entries/icons/original/000/040/653/goldblum-quote.jpeg). Kidding aside, the goal here is to provide a quick way for developers to test short, simple code, and to submit Export tasks without leaving vscode. 
 
-> ❗ Use of `EE Tasks: run GEE script` is experimental and recommended for experienced GEE developers only. Not following [GEE coding best practices](https://developers.google.com/earth-engine/guides/best_practices) might lead to the extension crashing (e.g. the equivalent of [browser lock](https://developers.google.com/earth-engine/guides/debugging#browser-lock)). However, it's not the end of world, as a simple "Reload window" should get the extension running back to normal. 
+> ❗ Use of `EE Tasks: run GEE script` is experimental and recommended for experienced GEE developers only. Not following [GEE coding best practices](https://developers.google.com/earth-engine/guides/best_practices) might crash the Extension Host (e.g. the equivalent of [browser lock](https://developers.google.com/earth-engine/guides/debugging#browser-lock)). A simple "Reload window" should get the extension host running back to normal. 
 
 However, simple client-side errors will be caught:
 
 ![hellogee-log](https://raw.githubusercontent.com/gee-community/eetasks/main/docs/assets/helloGEE-syntaxError.png)
 
-> ❗ See another [caveat for Windows and MacOS users here](#caveat-for-windows-and-macos-users).
+> ❗ Always use `.getInfo()` with a callback function, otherwise this will crash the Extension Host. Learn why [here](#getInfo-caveat).
 
 ## Not recommended use cases
 
@@ -101,14 +101,10 @@ The example above works because the function `addOne` does not use any of these,
 
 However.. if you are using `require` you are probably already doing something more complicated than the [recommended use cases](#use-cases) for `EE Tasks: run GEE script`. 
 
-## Caveat for windows and MacOS users
+## getInfo caveat
 
-For some unknown reason, synchronous calls to some `ee` methods (e.g., most notably `getInfo`) do not work when running from vscode. Even stranger, this issue causes different behaviors depending on your OS. This is unlikely to be a bug with `ee` itself, as running the same code directly in `node` does work (in any OS), so the issue is isolated to within vscode. 
+Internally, the [earthengine api](https://github.com/google/earthengine-api) uses the [xmlhttprequest](https://github.com/driverdan/node-XMLHttpRequest) library for the `.getInfo()` method. The default `xmlhttprequest` process is [asynchronous](https://nodejs.org/en/learn/asynchronous-work/javascript-asynchronous-programming-and-callbacks), but it also supports simulating a synchronous request by [spawning a separate node process](https://github.com/driverdan/node-XMLHttpRequest/blob/97966e4ca1c9f2cc5574d8775cbdacebfec75455/lib/XMLHttpRequest.js#L483-L507) which actually does the request and then waiting for it. Using `.getInfo()` *without a callback function* will create a synchronous `xmlhttprequest`. The process spawned for the synchronous `xmlhttprequest` is spawned using the first element of the [array of command line arguments passed when the Node.js process was launched](https://nodejs.org/docs/latest/api/process.html#processargv). This is not a problem when running a script directly in Node. 
 
-See more details in the [question](https://stackoverflow.com/questions/77436205/vscode-specific-issue-with-node-xmltthprequest-sync-crashes-extension-host-in-w) posted to StackOverflow, and if you have some insight please share it. 
+Unfortunately, within a vscode extension the value of `process.argv[0]` depends on how vscode was launched. Under normal conditions, this will be the `code` executable (e.g., `C:\Users\username\AppData\Local\Programs\Microsoft VS Code\Code.exe` in Windows), thus spawning the process will fail and ***the Extension Host will crash*** because it will wait undefinitely for the (failed) process to finish (see more details [here](https://stackoverflow.com/a/77618205/3828592)). When running vscode through a remote server (e.g. SSH or WSL), `process.argv[0]` is actually a `node` executable (e.g., `~/.vscode-server/bin/<randomString>/node`) and the `xmlhttprequest` process works as expected. 
 
-What happens when I use `getInfo` (or other method that accepts a callback function) synchronously through a GEE script in `EE Tasks: run GEE script`?
-
-- In Linux: nothing, this works as expected.
-- In MacOS: an error is raised: `Error: EROFS: read-only file system, open '.node-xmlhttprequest-sync-32376`  
-- In Windows: the error is not caught and the Extension Host crashes. Any extension command (from any extension) will not work. However, a simple `Developer: Reload Window` will get the extension host back to normal. 
+Anyway, the best practice is to not use `.getInfo()` at all, or to use it with a callback function if it is absolutely needed. For some ee objects, you can also use evaluate (see a good example for `projection.evaluate()` [here](https://gis.stackexchange.com/a/443194/67301)). 

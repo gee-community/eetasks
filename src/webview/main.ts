@@ -74,12 +74,14 @@ if(statsLabel){
     const nRunning = countState(data, "RUNNING");
     const nPending = countState(data, "PENDING");
     const nCancelled = countState(data, "CANCELLED");
+    const nFailed = countState(data, "FAILED");
 
     statsLabel.textContent = `  ${nTotal} tasks in total  `+
     `|  COMPLETED: ${nDone}   `+
     `|  RUNNING: ${nRunning}   `+
     `|  PENDING: ${nPending}   `+
-    `|  CANCELLED: ${nCancelled}`;
+    `|  CANCELLED: ${nCancelled}`+
+    `|  FAILED: ${nFailed}`;
   }
 }
 

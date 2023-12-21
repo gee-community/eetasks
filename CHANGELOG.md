@@ -1,5 +1,9 @@
 # Change Log
 
+## v0.2.2
+
+- Added "FAILED" tasks count to tasks information label.
+
 ## v0.2.1 
 
 - Added a label to the Tasks panel displaying aggregated information about the tasks (total number of tasks and by State -- completed, running, etc.).

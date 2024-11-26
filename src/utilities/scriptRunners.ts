@@ -44,20 +44,7 @@ in nodejs directly.
 import * as vscode from 'vscode';
 import { IPickedAccount } from './accountPicker';
 import { getAccountToken } from './getToken';
-import { mkdtemp, rmdir } from 'node:fs/promises';
-import path = require("path");
-import os = require("os");
-import fs = require("fs");
 var ee = require("@google/earthengine"); 
-const scriptPrefix = "exports.main=function(ee,ceu, onTaskStart, onTaskStartError, vslog){" +
-"var log=ceu.Log(vslog);" +
-"var print=ceu.Print(log);"+
-"var Map=ceu.Map; " +
-"var Chart=ceu.Chart;" + 
-"var ui = ceu.ui;" +
-"Export = new ceu.Export(ee, onTaskStart, onTaskStartError);";
-const scriptSuffix = "\n}";
-
 var codeEditorUtils = require("./codeEditorUtils.js");
 
 function wrapOnTaskStart(log: vscode.OutputChannel){
@@ -87,38 +74,30 @@ function scriptRunner(project:string | null, document:vscode.TextDocument, log:v
   let onTaskStartError = wrapOnTaskStartError(log);
   try{
     ee.initialize(null, null, 
-    ()=>{
+    async ()=>{
         try{
           if(project){
             ee.data.setProject(project);
           }
-          // Create a temporary directory:
-          mkdtemp(path.join(os.tmpdir(), 'eetasksRunner-'))
-          .then((tempDir:string)=>{
-              // Create the file to run in the temporary directory
-              let tempFile = path.join(tempDir, "temp.js"); 
-              //🔲 TODO: random name instead of temp.js
-              let tempUri = vscode.Uri.file(tempFile);
-              //🔲 TODO: replace with vscode.workspace.fs.writeFile
-              fs.writeFile(tempFile, 
-              scriptPrefix + document.getText() + scriptSuffix, () => {
-                  try{
-                  const userCode = require(tempFile);
-                  try{
-                  log.appendLine("Starting GEE script run: ");
-                  log.appendLine(document.fileName);
-                  log.appendLine("----------------------------------");
-                  userCode.main(ee, codeEditorUtils,
-                    onTaskStart, onTaskStartError, log);
-                  log.show();
-                  }catch(error){scriptRunError(error);}
-                  }catch(error){scriptRunError(error);}
-                  // Delete the temporary file and directory,
-                  // even if the script failed. 
-                  vscode.workspace.fs.delete(tempUri).then(
-                      ()=>rmdir(tempDir));
-                  }); // fs.writeFile
-                }); // mkdtemp
+          try {
+            const code = `
+              export const runEECode = (ee,ceu, onTaskStart, onTaskStartError, vslog) => {
+                var log=ceu.Log(vslog);
+                var print=ceu.Print(log);
+                var Map=new ceu.Map(ee, onTaskStart, onTaskStartError);
+                var Chart=ceu.Chart;
+                var ui = ceu.ui;
+                var Export = new ceu.Export(ee, onTaskStart, onTaskStartError);
+                ${document.getText()}
+              };
+            `;
+            const blob = `data:text/javascript;charset=utf-8,${encodeURIComponent(code)}`;
+            const module = await import(blob);
+            module.runEECode(ee, codeEditorUtils, onTaskStart, onTaskStartError, log); 
+
+            } catch (error) {
+                scriptRunError(error);
+            }
         }catch (error){
           scriptRunError(error);
         }finally{

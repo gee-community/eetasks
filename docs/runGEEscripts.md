@@ -37,13 +37,11 @@ Internally, the EE Tasks extension wraps your code in a function that handles th
 
 Why would I want to run a GEE script in vscode? Short answer: [just because I can](https://i.kym-cdn.com/entries/icons/original/000/040/653/goldblum-quote.jpeg). Kidding aside, the goal here is to provide a quick way for developers to test short, simple code, and to submit Export tasks without leaving vscode. 
 
-> ❗ Use of `EE Tasks: run GEE script` is experimental and recommended for experienced GEE developers only. Not following [GEE coding best practices](https://developers.google.com/earth-engine/guides/best_practices) might crash the Extension Host (e.g. the equivalent of [browser lock](https://developers.google.com/earth-engine/guides/debugging#browser-lock)). A simple "Reload window" should get the extension host running back to normal. 
+> ❗ Use of `EE Tasks: run GEE script` is experimental and recommended for experienced GEE developers only. 
 
 However, simple client-side errors will be caught:
 
 ![hellogee-log](https://raw.githubusercontent.com/gee-community/eetasks/main/docs/assets/helloGEE-syntaxError.png)
-
-> ❗ Always use `.getInfo()` with a callback function, otherwise this will crash the Extension Host. Learn why [here](#getInfo-caveat).
 
 ## Not recommended use cases
 
@@ -100,11 +98,3 @@ This silly example demonstrates the use of require with a local file. However, n
 The example above works because the function `addOne` does not use any of these, but it does allow using the methods within the objects passed as arguments (e.g. the `.add` method from the passed argument `ee.Number(1)`). A workaround would be to modify the functions to use within the module to require so that they allow passing `ee` (or other features to use) as arguments. 
 
 However.. if you are using `require` you are probably already doing something more complicated than the [recommended use cases](#use-cases) for `EE Tasks: run GEE script`. 
-
-## getInfo caveat
-
-Internally, the [earthengine api](https://github.com/google/earthengine-api) uses the [xmlhttprequest](https://github.com/driverdan/node-XMLHttpRequest) library for the `.getInfo()` method. The default `xmlhttprequest` process is [asynchronous](https://nodejs.org/en/learn/asynchronous-work/javascript-asynchronous-programming-and-callbacks), but it also supports simulating a synchronous request by [spawning a separate node process](https://github.com/driverdan/node-XMLHttpRequest/blob/97966e4ca1c9f2cc5574d8775cbdacebfec75455/lib/XMLHttpRequest.js#L483-L507) which actually does the request and then waiting for it. Using `.getInfo()` *without a callback function* will create a synchronous `xmlhttprequest`. The process spawned for the synchronous `xmlhttprequest` is spawned using the first element of the [array of command line arguments passed when the Node.js process was launched](https://nodejs.org/docs/latest/api/process.html#processargv). This is not a problem when running a script directly in Node. 
-
-Unfortunately, within a vscode extension the value of `process.argv[0]` depends on how vscode was launched. Under normal conditions, this will be the `code` executable (e.g., `C:\Users\username\AppData\Local\Programs\Microsoft VS Code\Code.exe` in Windows), thus spawning the process will fail and ***the Extension Host will crash*** because it will wait undefinitely for the (failed) process to finish (see more details [here](https://stackoverflow.com/a/77618205/3828592)). When running vscode through a remote server (e.g. SSH or WSL), `process.argv[0]` is actually a `node` executable (e.g., `~/.vscode-server/bin/<randomString>/node`) and the `xmlhttprequest` process works as expected. 
-
-Anyway, the best practice is to not use `.getInfo()` at all, or to use it with a callback function if it is absolutely needed. For some ee objects, you can also use evaluate (see a good example for `projection.evaluate()` [here](https://gis.stackexchange.com/a/443194/67301)). 

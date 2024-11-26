@@ -74,4 +74,3 @@ This extension contributes the following settings:
 
 - The tasks tables do not refresh automatically. However, you can use the refresh button (🔄) to update the table on demand. 
 - The intended use for the `EE Tasks: run GEE script` is limited and currently experimental (recommended for experienced users only). [Learn more about it here](https://github.com/gee-community/eetasks/blob/main/docs/runGEEscripts.md).
-    - Using `.getInfo()` without a callback function will crash the Extension Host, except when connected to a remote vscode server. Learn more about why [here](https://github.com/gee-community/eetasks/blob/main/docs/runGEEscripts.md#getInfo-caveat).

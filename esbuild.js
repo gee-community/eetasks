@@ -1,9 +1,12 @@
 const { build } = require("esbuild");
+const copyStaticFiles = require("esbuild-copy-static-files");
+
+const production = process.argv.includes('--production');
 
 const baseConfig = {
   bundle: true,
-  minify: process.env.NODE_ENV === "production",
-  sourcemap: process.env.NODE_ENV !== "production",
+  minify: production,
+  sourcemap: !production,
 };
 
 const extensionConfig = {
@@ -24,6 +27,23 @@ const webviewConfig = {
   format: "esm",
   entryPoints: ["./src/webview/main.ts"],
   outfile: "./out/webview.js",
+  plugins: [
+   copyStaticFiles({
+     src: "node_modules/leaflet/dist/leaflet.css", 
+     dest: "out/leaflet.css",             
+  }),
+    ]
+};
+
+const mapWebviewConfig = {
+  ...baseConfig,
+  entryPoints: ["./src/webview/map.ts"],
+  platform: "node",
+  target: "es2020",
+  sourcesContent: false,
+  format: "cjs",
+  external:['vscode'],
+  outfile: "./out/mapWebview.js",
 };
 
 const watchConfig = {
@@ -55,6 +75,10 @@ const watchConfig = {
       });
       await build({
         ...webviewConfig,
+        ...watchConfig,
+      });
+      await build({
+        ...mapWebviewConfig,
         ...watchConfig,
       });
       console.log("[watch] build finished");

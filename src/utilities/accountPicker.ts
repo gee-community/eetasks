@@ -361,28 +361,21 @@ export async function pickAccount(project: string | null, context: vscode.Extens
 }
 
 export function promptProject(account:IPickedAccount, project:string | null, callback: Function, ...args:any[] | undefined[]){
-    // If "earthengine", project is not required, so it is set to null
-    if(account.name==="earthengine"){
-      // No need to pick a project if using stored credentials
-      callback(account, null, ...args);
-      return;
+    if(project){
+        callback(account, project.trim(), ...args);
+        return;
     }else{
-        if(project){
-            callback(account, project.trim(), ...args);
-            return;
-        }else{
 
-        vscode.window.showInputBox({
-            title: "Type the name of the project to use.", 
-            value: "earthengine-legacy",
-            prompt: "Example: earthengine-legacy"
-        })  
-        .then(function(project){
-            if(project){
-              callback(account, project.trim(), ...args);
-            }
-        });
+    vscode.window.showInputBox({
+        title: "Type the name of the project to use.", 
+        value: "earthengine-legacy",
+        prompt: "Example: earthengine-legacy"
+    })  
+    .then(function(project){
+        if(project){
+          callback(account, project.trim(), ...args);
         }
+    });
     }
 }
 

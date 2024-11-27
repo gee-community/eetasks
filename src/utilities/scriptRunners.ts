@@ -33,17 +33,13 @@ Finally, the temporary file is deleted.
 - Map, ui, and Chart: empty skeleton classes with functions accepting
 the same arguments as in the Code Editor, but doing nothing, i.e., 
 any user code calling thee functions is silently ignored. 
-
-❗ TODO: fix Windows-vscode-specific issue: 
-https://stackoverflow.com/questions/77436205/synchronous-function-call-to-external-library-within-vscode-freezes-only-in-wind
-Basically, synchronous calls to some ee functions (most notably getInfo)
-will crash the extension. This does not affect Linux users.
-It's also unlikely to be a bug in ee itself, as the issue doesn't occur
-in nodejs directly.  
+- Map.setCenter and Map.addLayer (only for ee.Image) are now implemented. 
 */
 import * as vscode from 'vscode';
 import { IPickedAccount } from './accountPicker';
 import { getAccountToken } from './getToken';
+import { Map } from '../panels/Map';
+
 var ee = require("@google/earthengine"); 
 var codeEditorUtils = require("./codeEditorUtils.js");
 
@@ -69,7 +65,7 @@ function eeInitError(err:any){
     vscode.window.showErrorMessage("EE initialization failed: \n " + err);
 }
 
-function scriptRunner(project:string | null, document:vscode.TextDocument, log:vscode.OutputChannel){
+function scriptRunner(project:string | null, document:vscode.TextDocument, log:vscode.OutputChannel, extensionUri:vscode.Uri){
   let onTaskStart = wrapOnTaskStart(log);
   let onTaskStartError = wrapOnTaskStartError(log);
   try{
@@ -81,10 +77,10 @@ function scriptRunner(project:string | null, document:vscode.TextDocument, log:v
           }
           try {
             const code = `
-              export const runEECode = (ee,ceu, onTaskStart, onTaskStartError, vslog) => {
+              export const runEECode = (ee,ceu, onTaskStart, onTaskStartError, vslog, vsMap, vsUri) => {
                 var log=ceu.Log(vslog);
                 var print=ceu.Print(log);
-                var Map=new ceu.Map(ee, onTaskStart, onTaskStartError);
+                var Map=new ceu.Map(ee, onTaskStart, onTaskStartError, vsMap, vsUri);
                 var Chart=ceu.Chart;
                 var ui = ceu.ui;
                 var Export = new ceu.Export(ee, onTaskStart, onTaskStartError);
@@ -93,7 +89,7 @@ function scriptRunner(project:string | null, document:vscode.TextDocument, log:v
             `;
             const blob = `data:text/javascript;charset=utf-8,${encodeURIComponent(code)}`;
             const module = await import(blob);
-            module.runEECode(ee, codeEditorUtils, onTaskStart, onTaskStartError, log); 
+            module.runEECode(ee, codeEditorUtils, onTaskStart, onTaskStartError, log, Map, extensionUri); 
 
             } catch (error) {
                 scriptRunError(error);
@@ -123,7 +119,7 @@ export function scriptRunnerAsAccount(account:IPickedAccount, project: string | 
         getAccountToken(account, context.globalState, context)
         .then((token:any)=>{
           ee.data.setAuthToken('', 'Bearer', token, 3600, [], 
-            ()=>scriptRunner(project, document, log)
+            ()=>scriptRunner(project, document, log, context.extensionUri)
           , false); 
         })
         .catch((err:any)=>{
@@ -134,7 +130,7 @@ export function scriptRunnerAsAccount(account:IPickedAccount, project: string | 
   }
 }
 
-export function scriptRunnerAsServiceAccount(credentials:any, log:vscode.OutputChannel){
+export function scriptRunnerAsServiceAccount(credentials:any, log:vscode.OutputChannel, context:vscode.ExtensionContext){
   /*
   Runs a GEE script using credentials from a service account 
   */
@@ -144,7 +140,7 @@ export function scriptRunnerAsServiceAccount(credentials:any, log:vscode.OutputC
       const documentUri = document.uri;
       if (documentUri.scheme==='file'){
       ee.data.authenticateViaPrivateKey(credentials,
-          ()=>scriptRunner(credentials.project, document, log),
+          ()=>scriptRunner(credentials.project, document, log, context.extensionUri),
           (error:any)=>{console.log("Error authenticating via private key. \n" + error);}
           ); 
       }

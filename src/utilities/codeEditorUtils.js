@@ -24,8 +24,10 @@ Code editor utilities.
     https://developers.google.com/earth-engine/apidocs/export-table-todrive
     https://developers.google.com/earth-engine/apidocs/export-table-tofeatureview
     https://developers.google.com/earth-engine/apidocs/export-video-tocloudstorage
-    
-- Map, ui, and Chart: empty skeleton classes with functions accepting
+- Map: currently only Map.setCenter and Map.addLayer are implemented.
+    The rest are empty so they can be silently ignored. 
+    Map.addLayer currently only works for ee.Image
+- ui, and Chart: empty skeleton classes with functions accepting
 the same arguments as in the Code Editor, but doing nothing, i.e., 
 any user code calling thee functions is silently ignored. 
 */
@@ -243,38 +245,70 @@ ui
 
 class MapConstructor{
    /*
-   Empty Map Class whose functions expect
-   the same arguments as in the code editor.
-   */
-   constructor(){}
-   add=function(item){};
-   addLayer=function(eeObject,visParams,name,shown,opacity){};
-   centerObject=function(object,zoom,onComplete){};
-   clear=function(){};
-   drawingTools=function(){};
-   getBounds=function(asGeoJSON){};
-   getCenter=function(){};
-   getScale=function(){};
-   getZoom=function(){};
-   layers=function(){};
-   onChangeBounds=function(callback){};
-   onChangeCenter=function(callback){};
-   onChangeZoom=function(callback){};
-   onClick=function(callback){};
-   onIdle=function(callback){};
-   onTileLoaded=function(callback){};
-   remove=function(item){};
-   setCenter=function(lon,lat,zoom){};
-   setControlVisibility=function(all,layerList,zoomControl,scaleControl,
-    mapTypeControl,fullscreenControl,drawingToolsControl){};
-   setGestureHandling=function(option){};
-   setZoom=function(zoom){};
-   style=function(){};
-   unlisten=function(idOrType){};
-   widgets=function(){};
-   }
+   Map Class
 
-exports.Map = new MapConstructor();
+   Functional:
+    - setCenter
+    - addLayer (only ee.Image)
+
+   All other function are defined similarly as in 
+   the code editor but are silently ignored.
+   */
+   constructor(ee, successCallback, errCallback, vsMap, vsUri){
+    this._vsMapPanel = undefined; 
+    this._openMapPanelIfNeeded = function(){
+        if (typeof this._vsMapPanel === 'undefined'){
+            this._vsMapPanel = vsMap.render(vsUri);
+        }
+    };
+
+    this.add=function(item){};
+
+    this.setCenter=function(lon,lat,zoom){
+      this._openMapPanelIfNeeded();
+
+      const coord = [lat, lon]
+      this._vsMapPanel.setView(coord, zoom)
+
+    };
+    this.addLayer=function(eeObject,visParams,name,shown,opacity){
+        this._openMapPanelIfNeeded();
+
+        // TODO: pre-process ImageCollection, Feature, FeatureCollection, etc
+        // into image 
+        // the following only works for ee.Image
+        const request = ee.data.images.applyVisualization(eeObject, visParams);
+        const mapId = ee.data.getMapId(request);
+        this._vsMapPanel.addLayer(mapId.urlFormat, name, shown, opacity);
+   };   
+   
+   this.centerObject=function(object,zoom,onComplete){};
+   this.clear=function(){};
+   this.drawingTools=function(){};
+   this.getBounds=function(asGeoJSON){};
+   this.getCenter=function(){};
+   this.getScale=function(){};
+   this.getZoom=function(){};
+   this.layers=function(){};
+   this.onChangeBounds=function(callback){};
+   this.onChangeCenter=function(callback){};
+   this.onChangeZoom=function(callback){};
+   this.onClick=function(callback){};
+   this.onIdle=function(callback){};
+   this.onTileLoaded=function(callback){};
+   this.remove=function(item){};
+   this.setControlVisibility=function(all,layerList,zoomControl,scaleControl,
+    mapTypeControl,fullscreenControl,drawingToolsControl){};
+   this.setGestureHandling=function(option){};
+   this.setZoom=function(zoom){};
+   this.style=function(){};
+   this.unlisten=function(idOrType){};
+   this.widgets=function(){};
+    }
+
+}
+
+exports.Map = MapConstructor;
 
 class uiButton{
     constructor(label, onClick, disabled, style, imageUrl){}

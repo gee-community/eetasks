@@ -68,7 +68,7 @@ export function activate(context: vscode.ExtensionContext) {
     pickServiceAccount()
     .then((credentials:any|undefined)=>{
         if(credentials){
-        scriptRunnerAsServiceAccount(credentials, scriptLog);
+        scriptRunnerAsServiceAccount(credentials, scriptLog, context);
         }
     });
   });

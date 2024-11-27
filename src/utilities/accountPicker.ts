@@ -224,7 +224,6 @@ Picks an account and prompts for project*
 
 If there is only one account available, then there is no need to pick. 
 
-*project not needed if account picked is "earthengine"
 Project may also be provided, in which case only the account
 is picked.
 
@@ -240,6 +239,9 @@ export async function pickAccount(project: string | null, context: vscode.Extens
     let accounts:any = [];
     let accountItems:vscode.QuickPickItem[] = [];
     let accountKinds:string[] = [];
+
+    let defaultProject:any = context.globalState.get("defaultProject");
+    let projectHint:string = defaultProject? defaultProject: 'my-ee-project';
 
     if(uAccounts){
         userAccounts = uAccounts;
@@ -308,12 +310,12 @@ export async function pickAccount(project: string | null, context: vscode.Extens
     let uniqueAccountKinds = [...new Set(accountKinds)];   
 
     if(nAccounts===1){
-        // Only one account, so there is no need to pick
+        // Only one account, so there is no need to pick the account.
         promptProject(
         {   name:accountItems[0].label.split(" ")[1],
             kind:accountKinds[0]
         }, 
-        project, callback, ...args);
+        project, projectHint, callback, ...args);
         return;
     }
 
@@ -354,22 +356,22 @@ export async function pickAccount(project: string | null, context: vscode.Extens
                 break;
         }
         const account:IPickedAccount = {name: label[1], kind:accKind};
-        promptProject(account, project, callback, ...args);
+        promptProject(account, project, projectHint, callback, ...args);
         }
     });
     return;
 }
 
-export function promptProject(account:IPickedAccount, project:string | null, callback: Function, ...args:any[] | undefined[]){
+export function promptProject(account:IPickedAccount, project:string | null, hint: string,callback: Function, ...args:any[] | undefined[]){
     if(project){
         callback(account, project.trim(), ...args);
         return;
-    }else{
+    }else{    
 
     vscode.window.showInputBox({
         title: "Type the name of the project to use.", 
-        value: "earthengine-legacy",
-        prompt: "Example: earthengine-legacy"
+        value: hint, 
+        prompt: "Example: my-ee-project"
     })  
     .then(function(project){
         if(project){

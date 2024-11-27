@@ -2,7 +2,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import { EETasksPanel } from "./panels/EETasksPanel";
-import { updateAccounts, promptProject, pickDefaultAccount,
+import { updateAccounts, pickDefaultAccount,
     pickAccount, pickServiceAccount } from './utilities/accountPicker';
 import { scriptRunnerAsAccount,scriptRunnerAsServiceAccount } from './utilities/scriptRunners';
 import { signin, signout } from './utilities/authenticate';
@@ -56,7 +56,7 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
   const openTasksTabCommand = vscode.commands.registerCommand("eetasks.open",()=>{
-    pickAccount("earthengine-legacy", context, EETasksPanel.render, context);
+    pickAccount(null, context, EETasksPanel.render, context);
   });
 
   const runScriptCommand = vscode.commands.registerCommand('eetasks.run', ()=>{

@@ -71,11 +71,7 @@ function scriptRunner(project:string | null, document:vscode.TextDocument, log:v
   try{
     ee.initialize(null, null, 
     async ()=>{
-        try{
-          if(project){
-            ee.data.setProject(project);
-          }
-          try {
+        try {
             const code = `
               export const runEECode = (ee,ceu, onTaskStart, onTaskStartError, vslog, vsMap, vsUri) => {
                 var log=ceu.Log(vslog);
@@ -93,10 +89,8 @@ function scriptRunner(project:string | null, document:vscode.TextDocument, log:v
 
             } catch (error) {
                 scriptRunError(error);
-            }
-        }catch (error){
-          scriptRunError(error);
-        }finally{
+        }
+        finally{
           return;
         }}, 
         (error:any)=>{eeInitError(error);}, 

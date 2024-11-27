@@ -267,16 +267,33 @@ class MapConstructor{
     this.setCenter=function(lon,lat,zoom){
       this._openMapPanelIfNeeded();
 
-      const coord = [lat, lon]
-      this._vsMapPanel.setView(coord, zoom)
+      const coord = [lat, lon];
+      this._vsMapPanel.setView(coord, zoom);
 
     };
     this.addLayer=function(eeObject,visParams,name,shown,opacity){
         this._openMapPanelIfNeeded();
 
-        // TODO: pre-process ImageCollection, Feature, FeatureCollection, etc
-        // into image 
-        // the following only works for ee.Image
+        if (typeof eeObject.mosaic === 'function'){
+            // ImageCollection has a `mosaic` method:
+            eeObject = eeObject.mosaic(); 
+        }else{
+            // Both geometry and feature have a `centroid` method
+            // FeatureCollection has the `aggregate_array` method
+            if(typeof eeObject.centroid === 'function' || typeof eeObject.aggregate_array === 'function'){
+                var features = ee.FeatureCollection(eeObject);
+                var color = visParams && visParams.color ? visParams.color : '000000';
+                var width = visParams && visParams.width ? visParams.width : 2;
+                var imageOutline = features.style({
+                    color: color,
+                    fillColor: '00000000',
+                    width: width
+                });
+                eeObject = features.style({fillColor: color})
+                .updateMask(ee.Image.constant(0.5))
+                .blend(imageOutline);
+            }
+        }
         const request = ee.data.images.applyVisualization(eeObject, visParams);
         const mapId = ee.data.getMapId(request);
         this._vsMapPanel.addLayer(mapId.urlFormat, name, shown, opacity);

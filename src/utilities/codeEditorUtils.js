@@ -260,7 +260,7 @@ class MapConstructor{
         if (typeof this._vsMapPanel === 'undefined'){
             this._vsMapPanel = vsMap.render(vsUri);
         }
-    }
+    };
 
     this.add=function(item){};
 
@@ -279,7 +279,7 @@ class MapConstructor{
         // the following only works for ee.Image
         const request = ee.data.images.applyVisualization(eeObject, visParams);
         const mapId = ee.data.getMapId(request);
-        this._vsMapPanel.addLayer(mapId.urlFormat)
+        this._vsMapPanel.addLayer(mapId.urlFormat, name, shown, opacity);
    };   
    
    this.centerObject=function(object,zoom,onComplete){};

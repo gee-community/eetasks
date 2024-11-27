@@ -267,12 +267,16 @@ class MapConstructor{
     this.setCenter=function(lon,lat,zoom){
       this._openMapPanelIfNeeded();
 
-      const coord = [lat, lon]
-      this._vsMapPanel.setView(coord, zoom)
+      const coord = [lat, lon];
+      this._vsMapPanel.setView(coord, zoom);
 
     };
     this.addLayer=function(eeObject,visParams,name,shown,opacity){
         this._openMapPanelIfNeeded();
+
+        if (typeof eeObject.mosaic === 'function'){
+            eeObject = eeObject.mosaic(); 
+        }
 
         // TODO: pre-process ImageCollection, Feature, FeatureCollection, etc
         // into image 

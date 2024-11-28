@@ -49,10 +49,15 @@ jobs:
     #    NEW_VERSION=$(vsce publish ${{ github.event.inputs.release_type }} -p ${VSCE_PAT} | grep -Eo "([0-9]+\.[0-9]+\.[0-9]+)")
     #    echo "new_version=$NEW_VERSION" >> $GITHUB_ENV
 
-    # Step 7: setup GH cli
-    - name: Set up GitHub CLI
+    # Step 7: Create a new branch  # TODO: remove the ehcho "new_version... line.
+    - name: Create a new branch
       run: |
-        curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo tee /usr/share/keyrings/githubcli-archive-keyring.gpg > /dev/null
-        sudo apt update
-        sudo apt install gh
-        gh auth login --with-token < ${{ secrets.GITHUB_TOKEN }}
+        echo "new_version=${{ github.run_id }}" >> $GITHUB_ENV
+        BRANCH_NAME="version-bump-${{ env.new_version }}"
+        git checkout -b $BRANCH_NAME
+        echo "Branch created: $BRANCH_NAME" > test.txt
+        git add test.txt
+        git commit -m "Version bump to ${{ env.new_version }}"
+        git push --set-upstream origin $BRANCH_NAME
+        gh pr create --title "Version bump to ${{ env.new_version }}" --body "Testing PR for version bump to ${{ env.new_version }}" --base test-actions --head $BRANCH_NAME
+        

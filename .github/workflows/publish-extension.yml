@@ -1,0 +1,42 @@
+name: Publish VS Code Extension
+
+# Allow manual triggers
+on:
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: "Release type: minor or major (default: patch)"
+        required: false
+        default: "patch" # Default to patch if not provided
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Check out the repository
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # Step 2: Set up Node.js
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16
+
+    # Step 3: Install dependencies
+    - name: Install dependencies
+      run: npm install
+
+    # Step 4: Install vsce CLI globally
+    - name: Install vsce CLI
+      run: npm install -g @vscode/vsce
+
+    # TEST: 
+    - name: Test the VSCE_TOKEN 
+      env:
+        VSCE_PAT: ${{ secrets.VSCE_TOKEN }}
+      run: |
+        vsce verify-pat -p ${VSCE_PAT}
+        echo ${{ github.event.inputs.release_type }}
+

@@ -80,3 +80,16 @@ jobs:
       with:
         name: eetasks-${new_version}
         path: "*.vsix"
+
+    # Step 10: Draft a GitHub release
+    - name: Draft GitHub Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: "v${{ env.new_version }}"
+        release_name: "Release v${{ env.new_version }}"
+        body: "Release eetasks version v${{ env.new_version }}."
+        draft: true 
+        prerelease: false
+        files: "*.vsix"

@@ -8,6 +8,10 @@ on:
         description: "Release type: minor or major (default: patch)"
         required: false
         default: "patch" # Default to patch if not provided
+        
+permissions:
+  contents: write
+  pull-requests: write
 
 jobs:
   publish:
@@ -32,7 +36,7 @@ jobs:
     - name: Install vsce CLI
       run: npm install -g @vscode/vsce
 
-    # TEST: 
+    # Step 5: Verify the VSCE_TOKEN 
     - name: Test the VSCE_TOKEN 
       env:
         VSCE_PAT: ${{ secrets.VSCE_TOKEN }}
@@ -40,3 +44,38 @@ jobs:
         vsce verify-pat -p ${VSCE_PAT}
         echo ${{ github.event.inputs.release_type }}
 
+    # Step 6: Publish and get new version number
+    - name: Publish to VS Code Marketplace
+      id: publish
+      env:
+        VSCE_PAT: ${{ secrets.VSCE_TOKEN }}
+      run: |
+        echo "new_version=${{ github.run_id }}" >> $GITHUB_ENV 
+    #    NEW_VERSION=$(vsce publish ${{ github.event.inputs.release_type }} -p ${VSCE_PAT} | grep -Eo "([0-9]+\.[0-9]+\.[0-9]+)")
+    #    echo "new_version=$NEW_VERSION" >> $GITHUB_ENV
+    
+    # Step 7: Create a new branch, commit, and pull request
+    # with the changes to package.json and package-lock.json 
+    - name: Create a new branch
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        BRANCH_NAME="version-bump-${new_version}"
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git checkout -b $BRANCH_NAME
+        git add package.json package-lock.json
+     #   git commit -m "Version bump to ${new_version}"
+     #   git push --set-upstream origin $BRANCH_NAME
+     #   gh pr create --title "Version bump to ${new_version}" --body "Version bump to ${new_version}" --base main --head $BRANCH_NAME
+    
+    # Step 8: Package the extension to a .vsix file
+    - name: Package extension
+      run: vsce package
+
+    # Step 9: Upload the packaged .vsix file as an artifact
+    - name: Upload .vsix as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: eetasks-extension
+        path: "*.vsix"

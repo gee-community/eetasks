@@ -99,7 +99,7 @@ export class Map {
             gap: 5px; 
         }
         .layers-control {
-            padding: 2px 0px 2px 0px;
+            padding: 5px 15px 5px 10px;
             background: rgba(255,255,255,1);
             box-shadow: 0 0 15px rgba(0,0,0,0.2);
             border-radius: 5px;
@@ -108,13 +108,14 @@ export class Map {
             display: flex;
             text-align: left;
             font-size: 12pt;
-            flex-direction: column;
+            flex-direction: column-reverse;
         }
         .layers-control:hover .layer-control {
                   display: grid;
         }
         .layers-control-title {
             padding: 0px 10px 0px 10px;
+            order: 1;
         }
         .label {
             padding: 0px 0px 0px 3px;

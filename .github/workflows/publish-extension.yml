@@ -8,6 +8,7 @@ on:
         description: "Release type: minor or major (default: patch)"
         required: false
         default: "patch" # Default to patch if not provided
+        
 permissions:
   contents: read
   pull-requests: write

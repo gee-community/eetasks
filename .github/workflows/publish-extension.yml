@@ -53,11 +53,13 @@ jobs:
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        BRANCH_NAME="vsce-version-bump"
+        BRANCH_NAME="vsce-version-bump" # Initial branch name before bump
         git checkout -b $BRANCH_NAME
-        git push --set-upstream origin $BRANCH_NAME
         vsce publish ${{ github.event.inputs.release_type }} -p ${VSCE_PAT}
         NEW_VERSION=$(grep -m1 -Eo "([0-9]+\.[0-9]+\.[0-9]+)" package.json)
+        BRANCH_NAME=vsce-version-bump-${NEW_VERSION}
+        git branch -m $BRANCH_NAME
+        git push --set-upstream origin $BRANCH_NAME
         echo "new_version=$NEW_VERSION" >> $GITHUB_ENV
 
     # Step 7: Package the extension to a .vsix file
@@ -70,24 +72,14 @@ jobs:
       with:
         name: eetasks-${new_version}
         path: "*.vsix"
-        
-    # Step 9: Create pull request with the commit made by vsce
+    
+    # Step 9: Create and merge pull request with the commit made by vsce
     - name: Update repository
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
+        BRANCH_NAME="vsce-version-bump-${{ env.new_version }}"
         gh pr create --title "Version bump to ${{ env.new_version}}" --body "Version bump to ${{ env.new_version }}" --base main --head $BRANCH_NAME
-        gh pr merge --merge --delete-branch --auto
+        gh pr merge --admin --merge --delete-branch --auto
 
-    # Step 10: Draft a GitHub release
-    - name: Draft GitHub Release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: "v${{ env.new_version }}"
-        release_name: "Release v${{ env.new_version }}"
-        body: "Release eetasks version v${{ env.new_version }}."
-        draft: true 
-        prerelease: false
-        files: "*.vsix"
+    # TODO: create a draft release and upload the .vsix to it..

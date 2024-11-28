@@ -85,8 +85,11 @@ function scriptRunner(project:string | null, document:vscode.TextDocument, log:v
             `;
             const blob = `data:text/javascript;charset=utf-8,${encodeURIComponent(code)}`;
             const module = await import(blob);
+            log.appendLine("Starting GEE script run: ");
+            log.appendLine(document.fileName);
+            log.appendLine("----------------------------------");
             module.runEECode(ee, codeEditorUtils, onTaskStart, onTaskStartError, log, Map, extensionUri); 
-
+            log.show();
             } catch (error) {
                 scriptRunError(error);
         }

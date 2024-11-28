@@ -32,7 +32,7 @@ jobs:
     - name: Install vsce CLI
       run: npm install -g @vscode/vsce
 
-    # TEST: 
+    # Step 5: Verify the VSCE_TOKEN 
     - name: Test the VSCE_TOKEN 
       env:
         VSCE_PAT: ${{ secrets.VSCE_TOKEN }}
@@ -40,3 +40,19 @@ jobs:
         vsce verify-pat -p ${VSCE_PAT}
         echo ${{ github.event.inputs.release_type }}
 
+    # Step 6: Publish and get new version number
+    #- name: Publish to VS Code Marketplace
+    #  id: publish
+    #  env:
+    #    VSCE_PAT: ${{ secrets.VSCE_TOKEN }}
+    #  run: |
+    #    NEW_VERSION=$(vsce publish ${{ github.event.inputs.release_type }} -p ${VSCE_PAT} | grep -Eo "([0-9]+\.[0-9]+\.[0-9]+)")
+    #    echo "new_version=$NEW_VERSION" >> $GITHUB_ENV
+
+    # Step 7: setup GH cli
+    - name: Set up GitHub CLI
+      run: |
+        curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo tee /usr/share/keyrings/githubcli-archive-keyring.gpg > /dev/null
+        sudo apt update
+        sudo apt install gh
+        gh auth login --with-token < ${{ secrets.GITHUB_TOKEN }}

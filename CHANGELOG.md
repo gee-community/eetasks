@@ -1,5 +1,10 @@
 # Change Log
 
+## v0.3.0
+
+- *New Feature*: ability to open a leaflet.js Map, which supports Map.addLayer
+- Internal changes to promptProject
+
 ## v0.2.2
 
 - Added "FAILED" tasks count to tasks information label.

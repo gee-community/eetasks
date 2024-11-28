@@ -41,7 +41,7 @@ const mapWebviewConfig = {
   platform: "node",
   target: "es2020",
   sourcesContent: false,
-  format: "cjs",
+  format: "esm",
   external:['vscode'],
   outfile: "./out/mapWebview.js",
 };
@@ -86,6 +86,7 @@ const watchConfig = {
       // Build extension and webview code
       await build(extensionConfig);
       await build(webviewConfig);
+      await build(mapWebviewConfig);
       console.log("build complete");
     }
   } catch (err) {

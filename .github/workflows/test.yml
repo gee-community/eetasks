@@ -23,30 +23,29 @@ jobs:
       uses: actions/checkout@v4
 
     # Step 2: Set up Node.js
-    #- name: Set up Node.js
-    #  uses: actions/setup-node@v4
-    #  with:
-    #    node-version: 20
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
 
     # Step 3: Install dependencies
-    #- name: Install dependencies
-    #  run: npm install
+    - name: Install dependencies
+      run: npm install
 
     # Step 4: Install vsce CLI globally
-    #- name: Install vsce CLI
-    #  run: npm install -g @vscode/vsce
+    - name: Install vsce CLI
+      run: npm install -g @vscode/vsce
 
     # Step 5: Verify the VSCE_TOKEN 
-    #- name: Test the VSCE_TOKEN 
-    #  env:
-    #    VSCE_PAT: ${{ secrets.VSCE_TOKEN }}
-    #  run: |
-    #    vsce verify-pat -p ${VSCE_PAT}
-    #    echo ${{ github.event.inputs.release_type }}
+    - name: Test the VSCE_TOKEN 
+      env:
+        VSCE_PAT: ${{ secrets.VSCE_TOKEN }}
+      run: |
+        vsce verify-pat -p ${VSCE_PAT}
+        echo ${{ github.event.inputs.release_type }}
 
-    # Step 6: Set and get new version number
-    # (mocking the commits made by using vsce publish)
-    #- name: mock vsce publish
+    # Step 6: Publish and get new version number
+    #- name: Publish to VS Code Marketplace
     #  id: publish
     #  env:
     #    VSCE_PAT: ${{ secrets.VSCE_TOKEN }}
@@ -54,22 +53,18 @@ jobs:
     #  run: |
     #    git config --global user.name "github-actions[bot]"
     #    git config --global user.email "github-actions[bot]@users.noreply.github.com"
-    #    BRANCH_NAME="vsce-version-bump"
+    #    BRANCH_NAME="vsce-version-bump" # Initial branch name before bump
     #    git checkout -b $BRANCH_NAME
-    #    #vsce publish ${{ github.event.inputs.release_type }} -p ${VSCE_PAT}
-    #    sed -i 's/0.2.1/0.3.0/g' package.json
-    #    sed -i 's/0.2.1/0.3.0/g' package-lock.json
+    #    vsce publish ${{ github.event.inputs.release_type }} -p ${VSCE_PAT}
     #    NEW_VERSION=$(grep -m1 -Eo "([0-9]+\.[0-9]+\.[0-9]+)" package.json)
-    #    git add package.json package-lock.json
-    #    git commit -m "Bumped version to 0.3.0"
     #    BRANCH_NAME=vsce-version-bump-${NEW_VERSION}
     #    git branch -m $BRANCH_NAME
     #    git push --set-upstream origin $BRANCH_NAME
     #    echo "new_version=$NEW_VERSION" >> $GITHUB_ENV
 
     # Step 7: Package the extension to a .vsix file
-    #- name: Package extension
-    #  run: vsce package
+    - name: Package extension
+      run: vsce package
 
     # Step 8: Upload the packaged .vsix file as an artifact
     #- name: Upload .vsix as artifact
@@ -79,14 +74,14 @@ jobs:
     #    path: "*.vsix"
     
     # Step 9: Create and merge pull request with the commit made by vsce
-    - name: Update repository
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        BRANCH_NAME="vsce-version-bump-0.3.0"  # change to ${{ env.new_version }} after test..
-        git checkout $BRANCH_NAME
-        #gh pr create --title "Version bump to ${{ env.new_version}}" --body "Version bump to ${{ env.new_version }}" --base main --head $BRANCH_NAME
-        gh pr merge --admin --merge --delete-branch --auto
+    #- name: Update repository
+    #  env:
+    #    GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #  run: |
+    #    BRANCH_NAME="vsce-version-bump-${{ env.new_version }}"
+    #    git checkout $BRANCH_NAME
+    #    gh pr create --title "Version bump to ${{ env.new_version}}" --body "Version bump to ${{ env.new_version }}" --base main --head $BRANCH_NAME
+    #    gh pr merge --admin --merge --delete-branch --auto
 
     # Step 10: Draft a GitHub release
     - name: Draft GitHub Release

@@ -58,8 +58,7 @@ jobs:
     - name: Create a new branch
       run: |
         BRANCH_NAME="version-bump-${new_version}"
-        git config user.name "github-actions[bot]"
-        git config user.email "github-actions[bot]@users.noreply.github.com"
+        gh auth login --with-token < ${{ secrets.GITHUB_TOKEN }}
         git checkout -b $BRANCH_NAME
         echo "Branch created: $BRANCH_NAME" > test.txt
         git add test.txt

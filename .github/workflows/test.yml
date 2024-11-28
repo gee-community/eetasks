@@ -63,7 +63,7 @@ jobs:
         git add package.json package-lock.json
         git commit -m "Bumped version to 0.3.0"
         BRANCH_NAME=vsce-version-bump-${NEW_VERSION}
-        git branch -m 
+        git branch -m $BRANCH_NAME
         git push --set-upstream origin $BRANCH_NAME
         echo "new_version=$NEW_VERSION" >> $GITHUB_ENV
 

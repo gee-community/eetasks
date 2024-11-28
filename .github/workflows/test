@@ -1,0 +1,99 @@
+name: Test last steps of the publish workflow
+
+# Allow manual triggers
+on:
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: "Release type: minor or major (default: patch)"
+        required: false
+        default: "patch" # Default to patch if not provided
+        
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Check out the repository
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # Step 2: Set up Node.js
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+
+    # Step 3: Install dependencies
+    - name: Install dependencies
+      run: npm install
+
+    # Step 4: Install vsce CLI globally
+    - name: Install vsce CLI
+      run: npm install -g @vscode/vsce
+
+    # Step 5: Verify the VSCE_TOKEN 
+    #- name: Test the VSCE_TOKEN 
+    #  env:
+    #    VSCE_PAT: ${{ secrets.VSCE_TOKEN }}
+    #  run: |
+    #    vsce verify-pat -p ${VSCE_PAT}
+    #    echo ${{ github.event.inputs.release_type }}
+
+    # Step 6: Set and get new version number
+    # (mocking the commits made by using vsce publish)
+    - name: mock vsce publish
+      id: publish
+      env:
+        VSCE_PAT: ${{ secrets.VSCE_TOKEN }}
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        BRANCH_NAME="vsce-version-bump"
+        git checkout -b $BRANCH_NAME
+        git push --set-upstream origin $BRANCH_NAME
+        #vsce publish ${{ github.event.inputs.release_type }} -p ${VSCE_PAT}
+        sed -i 's/0.2.1/0.3.0/g' package.json
+        sed -i 's/0.2.1/0.3.0/g' package-lock.json
+        git add package.json package-lock.json
+        git commit -m "Bumped version to 0.3.0"
+        git push origin 
+        NEW_VERSION=$(grep -m1 -Eo "([0-9]+\.[0-9]+\.[0-9]+)" package.json)
+        echo "new_version=$NEW_VERSION" >> $GITHUB_ENV
+
+    # Step 7: Package the extension to a .vsix file
+    #- name: Package extension
+    #  run: vsce package
+
+    # Step 8: Upload the packaged .vsix file as an artifact
+    #- name: Upload .vsix as artifact
+    #  uses: actions/upload-artifact@v4
+    #  with:
+    #    name: eetasks-${new_version}
+    #    path: "*.vsix"
+        
+    # Step 9: Create pull request with the commit made by vsce
+    - name: Update repository
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        gh pr create --title "Version bump to ${{ env.new_version}}" --body "Version bump to ${{ env.new_version }}" --base main --head $BRANCH_NAME
+        gh pr merge --merge --delete-branch --auto
+
+    # Step 10: Draft a GitHub release
+    - name: Draft GitHub Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: "v${{ env.new_version }}"
+        release_name: "Release v${{ env.new_version }}"
+        body: "Release eetasks version v${{ env.new_version }}."
+        draft: true 
+        prerelease: false
+        files: "*.vsix"

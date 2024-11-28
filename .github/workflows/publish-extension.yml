@@ -65,10 +65,11 @@ jobs:
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git checkout -b $BRANCH_NAME
         git add package.json package-lock.json
-     #   git commit -m "Version bump to ${new_version}"
-     #   git push --set-upstream origin $BRANCH_NAME
-     #   gh pr create --title "Version bump to ${new_version}" --body "Version bump to ${new_version}" --base main --head $BRANCH_NAME
-    
+      #  git commit -m "Version bump to ${new_version}"
+      #  git push --set-upstream origin $BRANCH_NAME
+      #  gh pr create --title "Version bump to ${new_version}" --body "Version bump to ${new_version}" --base main --head $BRANCH_NAME
+      #  gh pr merge --merge --delete-branch --auto
+     
     # Step 8: Package the extension to a .vsix file
     - name: Package extension
       run: vsce package
@@ -77,5 +78,5 @@ jobs:
     - name: Upload .vsix as artifact
       uses: actions/upload-artifact@v4
       with:
-        name: eetasks-extension
+        name: eetasks-${new_version}
         path: "*.vsix"

@@ -56,9 +56,12 @@ jobs:
     
     # Step 7: Create a new branch  # TODO: remove the ehcho "new_version... line.
     - name: Create a new branch
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         BRANCH_NAME="version-bump-${new_version}"
-        gh auth login --with-token < ${{ secrets.GITHUB_TOKEN }}
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git checkout -b $BRANCH_NAME
         echo "Branch created: $BRANCH_NAME" > test.txt
         git add test.txt

@@ -77,13 +77,16 @@ jobs:
     #  with:
     #    name: eetasks-${new_version}
     #    path: "*.vsix"
-        
+
+    - name: set env variable
+      run: |
+        echo "new_version=0.3.0" >> $GITHUB_ENV
+    
     # Step 9: Create pull request with the commit made by vsce
     - name: Update repository
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        echo "new_version=0.3.0" >> $GITHUB_ENV  # << to remove after test!
         BRANCH_NAME="vsce-version-bump-${{ env.new_version }}"
         git checkout -b $BRANCH_NAME  # << to remove after test!
         #gh pr create --title "Version bump to ${{ env.new_version}}" --body "Version bump to ${{ env.new_version }}" --base main --head $BRANCH_NAME

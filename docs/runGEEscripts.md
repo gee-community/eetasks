@@ -17,35 +17,29 @@ upon picking an available account (and project, if required), the script is star
 
 For the purpose of this document, a "GEE script" is a `.js` file that is able to run in the [Earth Engine Code Editor](https://developers.google.com/earth-engine/guides/playground). 
 
-> ❗ Not all GEE scripts can be run here. More details will be given below. 
+> ❗ Not all GEE scripts can be run here. 
 
-How does the [hello-world](#hello-world) example above work? Evidently, running the same script directly in [node](https://nodejs.org/en/) will not work:
-
-```bash
-$ node helloGEE.js 
-C:\Users\lopezom\helloGEE.js:1
-ee.String("Hello world!")
-^
-
-ReferenceError: ee is not defined
-```
-
-Internally, the EE Tasks extension wraps your code in a function that handles the initialization of ee, as well as providing *some* of the extra features in the [Earth Engine Code Editor](https://developers.google.com/earth-engine/guides/playground), including [print](https://developers.google.com/earth-engine/apidocs/print) and `Export` (e.g. [Export.table.toDrive](https://developers.google.com/earth-engine/apidocs/export-table-todrive)). See more details of what features are [included](#features) and which ones are [excluded](#excluded-features). 
+The EE Tasks extension wraps your code in a function that handles the initialization of `ee`, as well as providing *some* of the extra features in the [Earth Engine Code Editor](https://developers.google.com/earth-engine/guides/playground), including [print](https://developers.google.com/earth-engine/apidocs/print), `Export` (e.g. [Export.table.toDrive](https://developers.google.com/earth-engine/apidocs/export-table-todrive)), and [Map.addLayer](https://developers.google.com/earth-engine/apidocs/map-addlayer). Here's a [list](#features) of what is available.  
 
 
-## Use cases 
+## Submit tasks directly from vscode
 
-Why would I want to run a GEE script in vscode? Short answer: [just because I can](https://i.kym-cdn.com/entries/icons/original/000/040/653/goldblum-quote.jpeg). Kidding aside, the goal here is to provide a quick way for developers to test short, simple code, and to submit Export tasks without leaving vscode. 
+If your script uses any of the supported `Export` commands, your tasks will be submitted automatically and you can monitor the tasks using the `EE Tasks: view tasks` command. 
 
-> ❗ Use of `EE Tasks: run GEE script` is experimental and recommended for experienced GEE developers only. 
+The following animation shows an example that submits a single `Export.image.toDrive` task. A notification then informs the user that the task was submitted successfully. Then, the task can be monitored with the `EE Tasks: view tasks` command. 
 
-However, simple client-side errors will be caught:
+![eetasks-readme](https://raw.githubusercontent.com/gee-community/eetasks/main/docs/assets/geerunExample.gif)
+
+## Show EE layers in an interacive map
+
+The animation above also shows the capability of adding EE layers to an interactive map, which supports `ee.Image`, `ee.ImageCollection`, `ee.Geometry`, `ee.Feature`, and `ee.FeatureCollection`. 
+
+## Client-side errors
+
+Client-side errors (errors in your script not related to EE) will be shown in an error notification:
 
 ![hellogee-log](https://raw.githubusercontent.com/gee-community/eetasks/main/docs/assets/helloGEE-syntaxError.png)
 
-## Not recommended use cases
-
-Outside of the specific use-cases defined above, **it is not recommended to run GEE scripts using the EE Tasks extension**. The [Code Editor](https://code.earthengine.google.com) or [geemap](https://geemap.org) are definitely the right tools for exploratory analyses, debugging, etc. 
 
 ## Features 
 
@@ -53,11 +47,9 @@ Outside of the specific use-cases defined above, **it is not recommended to run 
 
 `print` somewhat mirrors the functionality of [print](https://developers.google.com/earth-engine/apidocs/print) in the Code Editor:
 
->  ⚠️ An important difference is that when objects that have a `getInfo` get printed, the operation is performed asynchronously, so the order is not guaranteed ❗
+>  ⚠️ Print for eeObjects wraps `getInfo` in asynchronous mode, so the order appearing in the output is not guaranteed❗. Use `print(myEeObject.getInfo())` if you want the script to perform the print synchronously. 
 
 ![ExportTableSuccessFail](https://raw.githubusercontent.com/gee-community/eetasks/main/docs/assets/print.png)
-
-> ⚠️ In windows or MacOS, do not use the `.getInfo` methods directly. [Here's why](#caveat-for-windows-and-macos-users). In Linux, this shouldn't be an issue.  
 
 ### `Export`
 
@@ -77,24 +69,15 @@ We can then use the `EE Tasks: view` command to monitor the task:
 
 We can see that the task completed, demonstrating task submission *and* monitoring from vscode!
 
-## Excluded features
+### Map
 
-### `Map`, `Chart`, and `ui` 
+Currently, only [Map.setCenter](https://developers.google.com/earth-engine/apidocs/map-setcenter) and [Map.addLayer](https://developers.google.com/earth-engine/apidocs/map-addlayer) have been implemented. If your script uses any of these two commands, a [leaflet](https://leafletjs.com/) map will open, and if your script uses `Map.addLayer`, the layers should be added to the map. The Map features a simple control for the opacity (slider) and visibility (checkbox) of each layer.
 
-These are not supported here. However, lines of code using these features are silently ignored, so there is no need to exclude them:
+![ExportTableTaskCompleted](https://raw.githubusercontent.com/gee-community/eetasks/main/docs/assets/map.png)
 
-![silentlyIgnored](https://raw.githubusercontent.com/gee-community/eetasks/main/docs/assets/silentlyIgnored.png)
+Any other `Map` commands will be silently ignored
 
-Support for `Chart` and `Map` *may* be developed in the future. 
+### Excluded
 
-### [require](https://developers.google.com/earth-engine/apicods/require)
+Any other extra features that the Code Editor provides, such as [ui.Chart](https://developers.google.com/earth-engine/apidocs/ui-chart) (or other `ui` features) are not yet implemented, but will be silently ignored. 
 
-Importing a module directly from GEE (e.g. `require("users/homeFolder/repo:path/to/file)`) is not currently supported, and is unlikely to be developed soon. However, in some very *limited and specific* cases, one workaround is to (1) clone the git repository ([see how to here](https://gis.stackexchange.com/a/315134/67301)), and (2) change the line of code to use the absolute path to the local file instead. For example:
-
-![require](https://raw.githubusercontent.com/gee-community/eetasks/main/docs/assets/require.png)
-
-This silly example demonstrates the use of require with a local file. However, note that the `clonedGEErepo/test.js` file does not have access to `ee`, `print`, `Export`, etc.. so the script will fail if it attempts to access them. 
-
-The example above works because the function `addOne` does not use any of these, but it does allow using the methods within the objects passed as arguments (e.g. the `.add` method from the passed argument `ee.Number(1)`). A workaround would be to modify the functions to use within the module to require so that they allow passing `ee` (or other features to use) as arguments. 
-
-However.. if you are using `require` you are probably already doing something more complicated than the [recommended use cases](#use-cases) for `EE Tasks: run GEE script`. 

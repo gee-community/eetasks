@@ -1,6 +1,6 @@
 # Earth Engine Tasks
 
-An extension for monitoring Earth Engine tasks. 
+An extension for monitoring and submitting Earth Engine tasks. 
 
 ## Features
 
@@ -14,8 +14,9 @@ Open a table view of Earth Engine tasks for a user or service account.
 
 ![eetasks-readme](https://raw.githubusercontent.com/gee-community/eetasks/main/docs/assets/geerunExample.gif)
 
-Run GEE code from within vscode! Learn more about what is [currently supported here](https://github.com/gee-community/eetasks/blob/main/docs/runGEEscripts.md). 
+Run GEE code directly from vscode! Submit tasks and preview Earth Engine images on an interactive map. Learn more about what is [currently supported here](https://github.com/gee-community/eetasks/blob/main/docs/runGEEscripts.md). 
 
+[This repository](https://github.com/lopezvoliver/eetasks-examples) contains sample GEE scripts that have been tested with the `EE Tasks` extension. 
 
 ## Requirements
 
@@ -73,4 +74,4 @@ This extension contributes the following settings:
 ## Known Issues
 
 - The tasks tables do not refresh automatically. However, you can use the refresh button (🔄) to update the table on demand. 
-- The intended use for the `EE Tasks: run GEE script` is limited and currently experimental (recommended for experienced users only). [Learn more about it here](https://github.com/gee-community/eetasks/blob/main/docs/runGEEscripts.md).
+- The  `EE Tasks: run GEE script` is limited and currently experimental. [Learn more about it here](https://github.com/gee-community/eetasks/blob/main/docs/runGEEscripts.md).

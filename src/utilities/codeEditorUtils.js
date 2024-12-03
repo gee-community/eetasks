@@ -15,7 +15,7 @@ function tryGitCommand(repoPath, gitCommand) {
             throw result.error;
         }
         if (result.status !== 0) {
-            throw new Error(`git fetch exited with code ${result.status}`);
+            throw new Error(`git ${gitCommand} exited with code ${result.status}`);
         } 
     } catch (error) {
         console.log('Warning: error executing git ', gitCommand, ' :', error.message);
@@ -387,14 +387,12 @@ class Tools {
                     /*  
                     We might have already cloned the repository to:
                           ~/.eetasks-user-modules/pathToRepository
-                    In which case let's try to git fetch and git pull
-                    to get the most recent version.
+                    Let's try to git pull to get the most recent version.
 
                     note: this could be improved to improve performance
                     instead of doing this every time.. perhaps using a 
                     user-configured option.. 
                     */
-                    tryGitCommand(repoLocalPath, 'fetch');
                     tryGitCommand(repoLocalPath, 'pull');
                 }else{
                     /* The repository does not exist yet, so let's try

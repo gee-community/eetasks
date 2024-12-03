@@ -1,23 +1,8 @@
 /*
 Helpers to run GEE scripts from within vscode. 
 
-A GEE script is written to a temporary file consisting of:
-
-scriptPrefix (see below)
-USER-PROVIDED-CODE
-scriptSuffix (a single closing curly brace '}' )
-
-Basically, the user script is wrapped into a "main"
-function that receives the ee library, the additional 
-"code Editor"-like utilities*, as well as a successCallback
-and errorCallback functions to handle when a task is 
-successfully submitted or fails to submit. 
-
-The temporary script is require()d `const userCode = require(tempFile)`
-and then the main function is called `userCode.main(...)`
-If there is an error with the script itself, it is catched and raised.
-Finally, the temporary file is deleted.
-
+The user script is wrapped into a function, with additional
+"code Editor"-like utilities, as well as the initialized ee library.
 *(see codeEditorUtils.js):
 - print: mirrors the functionality of print in the Code Editor. 
 - Export: mirrors the structure of Export in the Code Editor, with functions
@@ -30,10 +15,9 @@ Finally, the temporary file is deleted.
     for parameters such as description, fileNamePrefix, assetId, etc. Some of 
     could be implemented here (See 🔲 TODO's below), but not all. Therefore
     submission of tasks without these defaults will raise the errorCallback.  
-- Map, ui, and Chart: empty skeleton classes with functions accepting
-the same arguments as in the Code Editor, but doing nothing, i.e., 
-any user code calling thee functions is silently ignored. 
-- Map.setCenter and Map.addLayer (only for ee.Image) are now implemented. 
+- Map: currently only .setCenter() and .addLayer() have been implemented.
+- ui, and Chart: mock objects with a structure such that they will be ignored
+    if encountered in the user code. 
 */
 import * as vscode from 'vscode';
 import { IPickedAccount } from './accountPicker';
@@ -72,23 +56,33 @@ function scriptRunner(project:string | null, document:vscode.TextDocument, log:v
     ee.initialize(null, null, 
     async ()=>{
         try {
+            const tools = new codeEditorUtils.Tools(ee, log, Map, extensionUri,
+                onTaskStart, onTaskStartError,
+                document.fileName
+            ); 
             const code = `
-              export const runEECode = (ee,ceu, onTaskStart, onTaskStartError, vslog, vsMap, vsUri) => {
-                var log=ceu.Log(vslog);
-                var print=ceu.Print(log);
-                var Map=new ceu.Map(ee, onTaskStart, onTaskStartError, vsMap, vsUri);
-                var Chart=ceu.Chart;
-                var ui = ceu.ui;
-                var Export = new ceu.Export(ee, onTaskStart, onTaskStartError);
-                ${document.getText()}
-              };
+                export const runUserCode = (tools) => {
+                    let ee = tools.ee;
+                    let require = tools.Require();
+                    let print = tools.print;
+                    let Map = tools.Map;
+                    let Export = tools.Export;
+                    let ui = tools.ui;
+                    let Chart = tools.Chart;
+
+                    ${document.getText()}
+                };
             `;
             const blob = `data:text/javascript;charset=utf-8,${encodeURIComponent(code)}`;
             const module = await import(blob);
+
             log.appendLine("Starting GEE script run: ");
             log.appendLine(document.fileName);
             log.appendLine("----------------------------------");
-            module.runEECode(ee, codeEditorUtils, onTaskStart, onTaskStartError, log, Map, extensionUri); 
+            module.runUserCode(tools);
+            log.appendLine("----------------------------------");
+            log.appendLine(`GEE script run ended. 
+             \nHowever, some output might still be printed below (from asynchronous calls to \`print\`).`);
             log.show();
             } catch (error) {
                 scriptRunError(error);

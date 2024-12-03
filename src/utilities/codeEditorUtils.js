@@ -674,18 +674,7 @@ ui.data = {
         reset:function(){},
         set:function(){},
     };
-
-ui.data.ActiveList=function(){
-    const m = {};
-    m.add=function(){};
-    m.forEach=function(){};
-    m.get=function(){};
-    m.getJsArray=function(){};
-    m.insert=function(){};
-    m.length=function(){};
-    m.remove=function(){};
-    m.reset=function(){};
-    m.set=function(){};
+    },  
 };
 ui.root = {
     add:function(){},
@@ -714,83 +703,37 @@ ui.util = {
 }
 ui.Key={};
 
-class uiutil{
-    constructor(){}
-    clear=function(){};
-    clearTimeout=function(timeoutKey){};
-    debounce=function(func, delay, scope){};
-    getCurrentPosition=function(success, error){};
-    rateLimit=function(func, delay, scope){};
-    setInterval=function(func, delay){};
-    setTimeout=function(func, delay){};
-    throttle=function(func, delay, scope){};
-}
 /*
-Empty ui Class whose functions expect
-the same arguments as in the code editor.
+    Mock implementation of Chart
+    Note that Chart is now deprecated
+    (we could take it from the ui.Chart.. )
 */
-class UIConstructor{
-    constructor(){}
-    Button = new uiButton();
-    Chart = new uiChart();
-    Checkbox = new uiCheckbox();
-    DateSlider = new uiDateSlider();
-    Label = new uiLabel();
-    Map = new uiMap();
-    Panel = new uiPanel();
-    Select = new uiSelect();
-    Slider = new uiSlider();
-    SplitPanel = new uiSplitPanel();
-    Textbox = new uiTextbox();
-    Thumbnail = new uiThumbnail();
-    root = new uiroot();
-    url = new uiurl(); 
-    util = new uiutil();
-    Key=null;
-}
-exports.ui = new UIConstructor();
-
-class ChartArrayConstructor{
-    constructor(){}
-    values=function(array,axis,xLabels){};
-}
-class ChartFeatureConstructor{
-    constructor(){}
-    byFeature=function(features,xProperty,yProperties){};
-    byProperty=function(features,xProperties,seriesProperty){};
-    groups=function(features,xProperty,yProperty,seriesProperty){};
-    histogram=function(features,property,maxBuckets,minBucketWidth,maxRaw){};
-}
-class ChartImageConstructor{
-    constructor(){}
-    byClass=function(image, classBand, region, reducer, scale, classLabels, xLabels){};
-    byRegion=function(image, regions, reducer, scale, xProperty){};
-    doySeries=function(imageCollection, region, regionReducer, scale, yearReducer, startDay, endDay){};
-    doySeriesByRegion=function(imageCollection, bandName, regions, regionReducer, scale, 
-        yearReducer, seriesProperty, startDay, endDay){};
-    doySeriesByYear=function(imageCollection, bandName, region, regionReducer, scale, 
-        sameDayReducer, startDay, endDay){};
-    histogram=function(image, region, scale, maxBuckets, minBucketWidth, maxRaw){};
-    regions=function(image, regions, reducer, scale, seriesProperty, xLabels){};
-    series=function(imageCollection, region, reducer, scale, xProperty){};
-    seriesByRegion=function(imageCollection, regions, reducer, band, scale, xProperty, seriesProperty){};
-}
-class ChartConstructor{
-   /*
-   Empty Chart Class whose functions expect
-   the same arguments as in the code editor.
-   */
-  constructor(){}
-  array = new ChartArrayConstructor();
-  feature = new ChartFeatureConstructor();
-  image = new ChartImageConstructor();
-  Chart=function(dataTable, chartType, options, view){};
-  setChartType=function(chartType){};
-  setDataTable=function(dataTable){};
-  setOptions=function(options){};
-  setSeriesNames=function(seriesNames, seriesIndex){};
-  setView=function(view){};
-  transform=function(transformer){};
-}
-
-exports.Chart = new ChartConstructor();
+const Chart = function(){
+    return {
+        setChartType:function(){},
+        setDataTable:function(){},
+        setOptions:function(){},
+        setSeriesNames:function(){},
+        setView:function(){},
+        transform:function(){},
+    };
+};
+Chart.array = {
+    values: function(){return Chart();},
+};
+Chart.feature = {
+    byFeature: function(){return Chart();},
+    byProperty: function(){return Chart();},
+    groups: function(){return Chart();},
+    histogram: function(){return Chart();},
+};
+Chart.image = {
+    byClass: function(){return Chart();},
+    byRegion: function(){return Chart();},
+    doySeries: function(){return Chart();},
+    doySeriesByRegion: function(){return Chart();},
+    histogram: function(){return Chart();},
+    regions: function(){return Chart();},
+    series: function(){return Chart();},
+    seriesByRegion: function(){return Chart();},
+};

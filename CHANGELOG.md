@@ -1,5 +1,9 @@
 # Change Log
 
+## v0.4.0
+
+- *New Feature*: `request` is now supported in scripts
+
 ## v0.3.0
 
 - *New Feature*: ability to open a leaflet.js Map, which supports Map.addLayer

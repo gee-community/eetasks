@@ -1,0 +1,40 @@
+name: Package VS Code Extension (for testing)
+
+# Allow manual triggers
+on:
+  workflow_dispatch:
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Check out the repository
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # Step 2: Set up Node.js
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+
+    # Step 3: Install dependencies
+    - name: Install dependencies
+      run: npm install
+
+    # Step 4: Install vsce CLI globally
+    - name: Install vsce CLI
+      run: npm install -g @vscode/vsce
+
+    # Step 5: Package the extension to a .vsix file
+    - name: Package extension
+      run: vsce package
+
+    # Step 6: Upload the packaged .vsix file as an artifact
+    - name: Upload .vsix as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: eetasks-${new_version}
+        path: "*.vsix"
+   

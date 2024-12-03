@@ -327,358 +327,380 @@ class MapConstructor{
 
 exports.Map = MapConstructor;
 
-class uiButton{
-    constructor(label, onClick, disabled, style, imageUrl){}
-    getDisabled=function(){};
-    getImageUrl=function(){};
-    getLabel=function(){};
-    onClick=function(callback){};
-    setDisabled=function(disabled){};
-    setImageUrl=function(imageUrl){};
-    setLabel=function(label){};
-    style=function(){};
-    unlisten=function(idOrType){};
+/* Mock implementation of ui, so that
+   they can be ignored in the user code without raising
+   errors. 
+   Some of this could be implemented to work with the 
+   leaflet map..
+*/
+const ui = {
+  Button: function(){
+    return {
+      getDisabled:function(){},
+      getImageUrl:function(){},
+      getLabel:function(){},
+      onClick:function(){},
+      setDisabled:function(){},
+      setImageUrl:function(){},
+      setLabel:function(){},
+      style:function(){},
+      unlisten:function(){},
+    };
+  },
+  Chart: function () {
+    return {
+      getChartType: function(){},
+      getDataTable:function(){},
+      getDownloadable:function(){},
+      getOptions:function(){},
+      getView:function(){},
+      onClick:function(){},
+      setChartType:function(){},
+      setDataTable:function(){},
+      setDownloadable:function(){},
+      setOptions:function(){},
+      setSeriesNames:function(){},
+      setView:function(){},
+      style:function(){},
+      unlisten:function(){},
+    };
+  },
+  Checkbox: function(){
+    return {
+        getDisabled:function(){},
+        getLabel:function(){},
+        getValue:function(){},
+        onChange:function(){},
+        setDisabled:function(){},
+        setLabel:function(){},
+        setValue:function(){},
+        style:function(){},
+        unlisten:function(){},       
+    };
+  },
+  DateSlider: function(){
+    return {
+        getDisabled:function(){},
+        getEnd:function(){},
+        getPeriod:function(){},
+        getStart:function(){},
+        getValue:function(){},
+        onChange:function(){},
+        setDisabled:function(){},
+        setEnd:function(){},
+        setPeriod:function(){},
+        setStart:function(){},
+        setValue:function(){},
+        style:function(){},
+        unlisten:function(){},
+    };
+  },
+  Label: function(){
+    return {
+        getImageUrl:function(){},
+        getUrl:function(){},
+        getValue:function(){},
+        setImageUrl:function(){},
+        setUrl:function(){},
+        setValue:function(){},
+        style:function(){},
+    };
+  },
+  Map: function(){
+    return {
+        add:function(){},
+        addLayer:function(){},
+        centerObject:function(){},
+        clear:function(){},
+        drawingTools:function(){},
+        getBounds:function(){},
+        getCenter:function(){},
+        getScale:function(){},
+        getZoom:function(){},
+        insert:function(){},
+        layers:function(){},
+        onChangeBounds:function(){},
+        onChangeCenter:function(){},
+        onChangeZoom:function(){},
+        onClick:function(){},
+        onIdle:function(){},
+        onTileLoaded:function(){},
+        remove:function(){},
+        setCenter:function(){},
+        setControlVisibility:function(){},
+        setGestureHandling:function(){},
+        setLocked:function(){},
+        setOptions:function(){},
+        setZoom:function(){},
+        style:function(){},
+        unlisten:function(){},
+        widgets:function(){},
+    };
+  },
+  Panel: function(){
+    return {
+        add:function(){},
+        clear:function(){},
+        getLayout:function(){},
+        insert:function(){},
+        remove:function(){},
+        setLayout:function(){},
+        style:function(){},
+        widgets:function(){},
+    };
+  },
+  Select: function(){
+    return{
+        getDisabled:function(){},
+        getPlaceholder:function(){},
+        getValue:function(){},
+        items:function(){},
+        onChange:function(){},
+        setDisabled:function(){},
+        setPlaceholder:function(){},
+        setValue:function(){},
+        style:function(){},
+        unlisten:function(){},
+    };
+  },
+  Slider: function(){
+    return{
+        getDisabled:function(){},
+        getMax:function(){},
+        getMin:function(){},
+        getStep:function(){},
+        getValue:function(){},
+        onChange:function(){},
+        onSlide:function(){},
+        setDisabled:function(){},
+        setMax:function(){},
+        setMin:function(){},
+        setStep:function(){},
+        setValue:function(){},
+        style:function(){},
+        unlisten:function(){},
+    };
+  },
+  SplitPanel: function(){
+    return{
+        getFirstPanel:function(){},
+        getOrientation:function(){},
+        getPanel:function(){},
+        getSecondPanel:function(){},
+        getWipe:function(){},
+        setFirstPanel:function(){},
+        setOrientation:function(){},
+        setPanel:function(){},
+        setSecondPanel:function(){},
+        setWipe:function(){},
+        style:function(){},
+        unlisten:function(){},
+    };
+  },
+  Textbox: function(){
+    return{
+        getDisabled:function(){},
+        getPlaceholder:function(){},
+        getValue:function(){},
+        onChange:function(){},
+        setDisabled:function(){},
+        setPlaceholder:function(){},
+        setValue:function(){},
+        style:function(){},
+        unlisten:function(){},
+    };
+  },
+  Thumbnail: function(){
+    return{
+        getImage:function(){},
+        getParams:function(){},
+        onClick:function(){},
+        setImage:function(){},
+        setParams:function(){},
+        style:function(){},
+        unlisten:function(){},
+    };
+  },
+};
+
+ui.Chart.array = {
+    values: function(){return ui.Chart();},
+};
+ui.Chart.feature = {
+  byFeature: function () {return ui.Chart();},
+  byProperty: function () {return ui.Chart();},
+  groups: function () {return ui.Chart();},
+  histogram: function () {return ui.Chart();},
+};
+ui.Chart.image = {
+  byClass: function () {return ui.Chart();},
+  byRegion: function () {return ui.Chart();},
+  doySeries: function () {return ui.Chart();},
+  doySeriesByRegion: function () {return ui.Chart();},
+  histogram: function () {return ui.Chart();},
+  regions: function () {return ui.Chart();},
+  series: function () {return ui.Chart();},
+  seriesByRegion: function () {return ui.Chart();},
+};
+ui.Map.CloudStorageLayer = function(){
+    const m = {}; 
+    m.getBucket = function(){};
+    m.getBucket=function(){};
+    m.getMaxZoom=function(){};
+    m.getName=function(){};
+    m.getOpacity=function(){};
+    m.getPath=function(){};
+    m.getShown=function(){};
+    m.getSuffix=function(){};
+    m.setBucket=function(){};
+    m.setMaxZoom=function(){};
+    m.setName=function(){};
+    m.setOpacity=function(){};
+    m.setPath=function(){};
+    m.setShown=function(){};
+    m.setSuffix=function(){};
+    return m;
+};
+ui.Map.DrawingTools = function(){
+    const m = {};
+    m.addLayer=function(){};
+    m.clear=function(){};
+    m.draw=function(){};
+    m.edit=function(){};
+    m.get=function(){};
+    m.getDrawModes=function(){};
+    m.getLinked=function(){};
+    m.getMap=function(){};
+    m.getSelected=function(){};
+    m.getShape=function(){};
+    m.getShown=function(){};
+    m.layers=function(){};
+    m.onDraw=function(){};
+    m.onEdit=function(){};
+    m.onErase=function(){};
+    m.onLayerAdd=function(){};
+    m.onLayerConfig=function(){};
+    m.onLayerRemove=function(){};
+    m.onLayerSelect=function(){};
+    m.onSelect=function(){};
+    m.onShapeChange=function(){};
+    m.set=function(){};
+    m.setDrawModes=function(){};
+    m.setLinked=function(){};
+    m.setSelected=function(){};
+    m.setShape=function(){};
+    m.setShown=function(){};
+    m.stop=function(){};
+    m.toFeatureCollection=function(){};
+    m.unlisten=function(){};
+};
+ui.Map.FeatureViewLayer = function(){
+    const m = {};
+    m.getAssetId=function(){};
+    m.getName=function(){};
+    m.getOpacity=function(){};
+    m.getShown=function(){};
+    m.getVisParams=function(){};
+    m.setAssetId=function(){};
+    m.setName=function(){};
+    m.setOpacity=function(){};
+    m.setShown=function(){};
+    m.setVisParams=function(){};
+};
+ui.Map.GeometryLayer = function(){
+    const m = {};
+    m.fromGeometry=function(){};
+    m.geometries=function(){};
+    m.get=function(key){};
+    m.getColor=function(){};
+    m.getEeObject=function(){};
+    m.getLocked=function(){};
+    m.getName=function(){};
+    m.getShown=function(){};
+    m.openConfigurationDialog=function(){};
+    m.set=function(){};
+    m.setColor=function(){};
+    m.setLocked=function(){};
+    m.setName=function(){};
+    m.setShown=function(){};
+    m.toGeometry=function(){};
+};
+ui.Map.Layer = function() {
+    const m = {};
+    m.getEeObject=function(){};
+    m.getName=function(){};
+    m.getOpacity=function(){};
+    m.getShown=function(){};
+    m.getVisParams=function(){};
+    m.setEeObject=function(){};
+    m.setName=function(){};
+    m.setOpacity=function(){};
+    m.setShown=function(){};
+    m.setVisParams=function(){};
+};
+ui.Map.Linker = function(){
+    const m = {};
+    m.add=function(){};
+    m.forEach=function(){};
+    m.get=function(){};
+    m.getJsArray=function(){};
+    m.insert=function(){};
+    m.length=function(){};
+    m.remove=function(){};
+    m.reset=function(){};
+    m.set=function(){};
+};
+
+ui.Panel.Layout = {
+    absolute:function(){},
+    flow:function(){},
+};
+
+ui.data.ActiveDictionary = function(){
+    const m = {};
+    m.get=function(){};
+    m.set=function(){};
+};
+
+ui.data.ActiveList=function(){
+    const m = {};
+    m.add=function(){};
+    m.forEach=function(){};
+    m.get=function(){};
+    m.getJsArray=function(){};
+    m.insert=function(){};
+    m.length=function(){};
+    m.remove=function(){};
+    m.reset=function(){};
+    m.set=function(){};
+};
+ui.root = {
+    add:function(){},
+    clear:function(){},
+    getLayout:function(){},
+    insert:function(){},
+    onResize:function(){},
+    remove:function(){},
+    setKeyHandler:function(){},
+    setLayout:function(){},
+    widgets:function(){},
 }
-class uiChartArray{
-    constructor(){}
-    values=function(array, axis, xLabels){};
+ui.url = {
+    get:function(){},
+    set:function(){},
 }
-class uiChartFeature{
-    constructor(){}
-    byFeature=function(features, xProperty, yProperties){};
-    byProperty=function(features, xProperties, seriesProperty){};
-    groups=function(features, xProperty, yProperty, seriesProperty){};
-    histogram=function(features, property, maxBuckets, minBucketWidth, maxRaw){};
+ui.util = {
+    clear:function(){},
+    clearTimeout:function(){},
+    debounce:function(){},
+    getCurrentPosition:function(){},
+    rateLimit:function(){},
+    setInterval:function(){},
+    setTimeout:function(){},
+    throttle:function(){},
 }
-class uiChartImage{
-    constructor(){}
-    byClass=function(image, classBand, region, reducer, scale, classLabels, xLabels){};
-    byRegion=function(image, regions, reducer, scale, xProperty){};
-    doySeries=function(imageCollection, region, regionReducer, scale, yearReducer, startDay, endDay){};
-    doySeriesByRegion=function(imageCollection, bandName, regions, regionReducer, scale, yearReducer, seriesProperty, startDay, endDay){};
-    doySeriesByYear=function(imageCollection, bandName, region, regionReducer, scale, sameDayReducer, startDay, endDay){};
-    histogram=function(image, region, scale, maxBuckets, minBucketWidth, maxRaw, maxPixels){};
-    regions=function(image, regions, reducer, scale, seriesProperty, xLabels){};
-    series=function(imageCollection, region, reducer, scale, xProperty){};
-    seriesByRegion=function(imageCollection, regions, reducer, band, scale, xProperty, seriesProperty){};
-}
-class uiChart{
-    constructor(dataTable, chartType, options, view, downloadable){}
-    array = new uiChartArray();
-    feature = new uiChartFeature();
-    image = new uiChartImage();
-    getChartType=function(){};
-    getDataTable=function(){};
-    getDownloadable=function(){};
-    getOptions=function(){};
-    getView=function(){};
-    onClick=function(callback){};
-    setChartType=function(chartType){};
-    setDataTable=function(dataTable){};
-    setDownloadable=function(Whether){};
-    setOptions=function(options){};
-    setSeriesNames=function(seriesNames, seriesIndex){};
-    setView=function(view){};
-    style=function(){};
-    unlisten=function(idOrType){};
-}
-class uiCheckbox{
-    constructor(label, value, onChange, disabled, style){}
-    getDisabled=function(){};
-    getLabel=function(){};
-    getValue=function(){};
-    onChange=function(callback){};
-    setDisabled=function(disabled){};
-    setLabel=function(value){};
-    setValue=function(value, trigger){};
-    style=function(){};
-    unlisten=function(idOrType){};
-}
-class uiDateSlider{
-    constructor(start, end, value, period, onChange, disabled, style){}
-    getDisabled=function(){};
-    getEnd=function(){};
-    getPeriod=function(){};
-    getStart=function(){};
-    getValue=function(){};
-    onChange=function(callback){};
-    setDisabled=function(disabled){};
-    setEnd=function(value){};
-    setPeriod=function(value){};
-    setStart=function(start){};
-    setValue=function(value, trigger){};
-    style=function(){};
-    unlisten=function(idOrType){};
-}
-class uiLabel{
-    constructor(value, style, targetUrl, imageUrl){}
-    getImageUrl=function(){};
-    getUrl=function(){};
-    getValue=function(){};
-    setImageUrl=function(imageUrl){};
-    setUrl=function(targetUrl){};
-    setValue=function(value){};
-    style=function(){};
-}
-class uiMapCloudStorageLayer{
-    constructor(bucket, path, maxZoom, suffix, name, shown, opacity){}
-    getBucket=function(){};
-    getMaxZoom=function(){};
-    getName=function(){};
-    getOpacity=function(){};
-    getPath=function(){};
-    getShown=function(){};
-    getSuffix=function(){};
-    setBucket=function(bucket){};
-    setMaxZoom=function(maxZoom){};
-    setName=function(name){};
-    setOpacity=function(opacity){};
-    setPath=function(path){};
-    setShown=function(shown){};
-    setSuffix=function(suffix){};
-}
-class uiMapDrawingTools{
-    constructor(layers, shape, selected, shown, linked){}
-    addLayer=function(geometries, name, color, shown, locked){};
-    clear=function(){};
-    draw=function(){};
-    edit=function(){};
-    get=function(key){};
-    getDrawModes=function(){};
-    getLinked=function(){};
-    getMap=function(){};
-    getSelected=function(){};
-    getShape=function(){};
-    getShown=function(){};
-    layers=function(){};
-    onDraw=function(callback){};
-    onEdit=function(callback){};
-    onErase=function(callback){};
-    onLayerAdd=function(callback){};
-    onLayerConfig=function(callback){};
-    onLayerRemove=function(callback){};
-    onLayerSelect=function(callback){};
-    onSelect=function(callback){};
-    onShapeChange=function(callback){};
-    set=function(keyOrDict, value){};
-    setDrawModes=function(drawModes){};
-    setLinked=function(linked){};
-    setSelected=function(layer){};
-    setShape=function(shape){};
-    setShown=function(shown){};
-    stop=function(){};
-    toFeatureCollection=function(indexProperty){};
-    unlisten=function(idOrType){};
-}
-class uiMapFeatureViewLayer{
-    constructor(assetId, visParams, name, shown, opacity){};
-    getAssetId=function(){};
-    getName=function(){};
-    getOpacity=function(){};
-    getShown=function(){};
-    getVisParams=function(){};
-    setAssetId=function(assetId){};
-    setName=function(name){};
-    setOpacity=function(opacity){};
-    setShown=function(shown){};
-    setVisParams=function(visParams){};
-}
-class uiMapGeometryLayer{
-    constructor(geometries, name, color, shown, locked){};
-    fromGeometry=function(geometry){};
-    geometries=function(){};
-    get=function(key){};
-    getColor=function(){};
-    getEeObject=function(){};
-    getLocked=function(){};
-    getName=function(){};
-    getShown=function(){};
-    openConfigurationDialog=function(){};
-    set=function(keyOrDict, value){};
-    setColor=function(color){};
-    setLocked=function(locked){};
-    setName=function(name){};
-    setShown=function(shown){};
-    toGeometry=function(){};
-}
-class uiMapLayer{
-    constructor(eeObject, visParams, name, shown, opacity){};
-    getEeObject=function(){};
-    getName=function(){};
-    getOpacity=function(){};
-    getShown=function(){};
-    getVisParams=function(){};
-    setEeObject=function(eeObject){};
-    setName=function(name){};
-    setOpacity=function(opacity){};
-    setShown=function(shown){};
-    setVisParams=function(visParams){};
-}
-class uiMapLinker{
-    constructor(maps, event){};
-    add=function(el){};
-    forEach=function(callback){};
-    get=function(index){};
-    getJsArray=function(){};
-    insert=function(index, el){};
-    length=function(){};
-    remove=function(el){};
-    reset=function(list){};
-    set=function(index, el){};
-}
-class uiMap{
-    constructor(center, onClick, style){}
-    CloudStorageLayer = new uiMapCloudStorageLayer();
-    drawingTools = new uiMapDrawingTools();
-    FeatureViewLayer = new uiMapFeatureViewLayer();
-    GeometryLayer = new uiMapGeometryLayer();
-    MapLayer = new uiMapLayer();
-    Linker = new uiMapLinker();
-    add=function(item){};
-    addLayer=function(eeObject, visParams, name, shown, opacity){};
-    centerObject=function(object, zoom, onComplete){};
-    clear=function(){};
-    drawingTools=function(){};
-    getBounds=function(asGeoJSON){};
-    getCenter=function(){};
-    getScale=function(){};
-    getZoom=function(){};
-    insert=function(index, widget){};
-    layers=function(){};
-    onChangeBounds=function(callback){};
-    onChangeCenter=function(callback){};
-    onChangeZoom=function(callback){};
-    onClick=function(callback){};
-    onIdle=function(callback){};
-    onTileLoaded=function(callback){};
-    remove=function(item){};
-    setCenter=function(lon, lat, zoom){};
-    setControlVisibility=function(all, layerList, zoomControl, scaleControl, mapTypeControl, fullscreenControl, drawingToolsControl){};
-    setGestureHandling=function(option){};
-    setLocked=function(locked, minZoom, maxZoom){};
-    setOptions=function(mapTypeId, styles, types){};
-    setZoom=function(zoom){};
-    style=function(){};
-    unlisten=function(idOrType){};
-    widgets=function(){};
-}
-class uiPanelLayout{
-    constructor(){}
-    absolute=function(){};
-    flow=function(direction, wrap){};
-}
-class uiPanel{
-    constructor(widgets, layout, style){}
-    Layout = new uiPanelLayout();
-    add=function(widget){};
-    clear=function(){};
-    getLayout=function(){};
-    insert=function(index, widget){};
-    remove=function(widget){};
-    setLayout=function(layout){};
-    style=function(){};
-    widgets=function(){};
-}
-class uiSelect{
-    constructor(items, placeholder, value, onChange, disabled, style){}
-    getDisabled=function(){};
-    getPlaceholder=function(){};
-    getValue=function(){};
-    items=function(){};
-    onChange=function(callback){};
-    setDisabled=function(disabled){};
-    setPlaceholder=function(placeholder){};
-    setValue=function(value, trigger){};
-    style=function(){};
-    unlisten=function(idOrType){};
-}
-class uiSlider{
-    constructor(min, max, value, step, onChange, direction, disabled, style){}
-    getDisabled=function(){};
-    getMax=function(){};
-    getMin=function(){};
-    getStep=function(){};
-    getValue=function(){};
-    onChange=function(callback){};
-    onSlide=function(callback){};
-    setDisabled=function(disabled){};
-    setMax=function(value){};
-    setMin=function(value){};
-    setStep=function(value){};
-    setValue=function(value, trigger){};
-    style=function(){};
-    unlisten=function(idOrType){};
-}
-class uiSplitPanel{
-    constructor(firstPanel, secondPanel, orientation, wipe, style){}
-    getFirstPanel=function(){};
-    getOrientation=function(){};
-    getPanel=function(index){};
-    getSecondPanel=function(){};
-    getWipe=function(){};
-    setFirstPanel=function(panel){};
-    setOrientation=function(orientation){};
-    setPanel=function(index, panel){};
-    setSecondPanel=function(panel){};
-    setWipe=function(wipe){};
-    style=function(){};
-    unlisten=function(idOrType){};
-}
-class uiTextbox{
-    constructor(placeholder, value, onChange, disabled, style){}
-    getDisabled=function(){};
-    getPlaceholder=function(){};
-    getValue=function(){};
-    onChange=function(callback){};
-    setDisabled=function(disabled){};
-    setPlaceholder=function(placeholder){};
-    setValue=function(value, trigger){};
-    style=function(){};
-    unlisten=function(idOrType){};
-}
-class uiThumbnail{
-    constructor(image, params, onClick, style){}
-    getImage=function(){};
-    getParams=function(){};
-    onClick=function(callback){};
-    setImage=function(image){};
-    setParams=function(params){};
-    style=function(){};
-    unlisten=function(idOrType){};
-}
-class uidata{
-    constructor(){}
-    ActiveDictionary=function(object, allowedProperties){};
-    get=function(key){};
-    set=function(keyOrDict, value){};
-    ActiveList=function(list){};
-    add=function(el){};
-    forEach=function(callback){};
-    get=function(index){};
-    getJsArray=function(){};
-    insert=function(index, el){};
-    length=function(){};
-    remove=function(el){};
-    reset=function(list){};
-    set=function(index, el){};
-}
-class uiroot{
-    constructor(){}
-    add=function(widget){};
-    clear=function(){};
-    getLayout=function(){};
-    insert=function(index, widget){};
-    onResize=function(callback){};
-    remove=function(widget){};
-    setKeyHandler=function(keyCode, handler, description){};
-    setLayout=function(layout){};
-    widgets=function(){};
-}
-class uiurl{
-    constructor(){}
-    get=function(key, defaultValue){};
-    set=function(keyOrDict, value){};
-}
+ui.Key={};
+
 class uiutil{
     constructor(){}
     clear=function(){};

@@ -655,12 +655,25 @@ ui.Panel.Layout = {
     absolute:function(){},
     flow:function(){},
 };
-
-ui.data.ActiveDictionary = function(){
-    const m = {};
-    m.get=function(){};
-    m.set=function(){};
-};
+ui.data = {
+    ActiveDictionary:function(){
+    return {
+        get: function(){},
+        set: function(){}
+    };
+    },
+    ActiveList:function(){
+    return {
+        add:function(){},
+        forEach:function(){},
+        get:function(){},
+        getJsArray:function(){},
+        insert:function(){},
+        length:function(){},
+        remove:function(){},
+        reset:function(){},
+        set:function(){},
+    };
 
 ui.data.ActiveList=function(){
     const m = {};

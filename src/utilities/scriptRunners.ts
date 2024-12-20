@@ -56,7 +56,7 @@ function scriptRunner(project:string | null, document:vscode.TextDocument, log:v
     ee.initialize(null, null, 
     async ()=>{
         try {
-            const tools = new codeEditorUtils.Tools(ee, log, Map, extensionUri,
+            const tools = new codeEditorUtils.Tools(ee, log, extensionUri,
                 onTaskStart, onTaskStartError,
                 document.fileName
             ); 
